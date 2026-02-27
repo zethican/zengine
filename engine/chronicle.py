@@ -191,6 +191,118 @@ class ChronicleEntry:
 # "modifier" is the event-specific detail field (not a Modifier instance).
 # ============================================================
 
+def _build_combat_action_payload(key: str, event: CombatEvent, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if key == EVT_ACTION_RESOLVED:
+        return {
+            "event_type": key,
+            "verb": "attacked",
+            "object": event.target or data.get("defender", "unknown"),
+            "modifier": {
+                "outcome": data.get("outcome"),
+                "damage": data.get("damage"),
+                "roll_total": data.get("roll", {}).get("total"),
+                "dc": data.get("dc"),
+                "is_crit": data.get("roll", {}).get("is_crit", False),
+                "is_fumble": data.get("roll", {}).get("is_fumble", False),
+            },
+        }
+    if key == EVT_ON_DAMAGE:
+        return {
+            "event_type": key,
+            "verb": "took_damage",
+            "object": event.source,
+            "modifier": {
+                "amount": data.get("amount"),
+                "hp_remaining": data.get("hp_remaining"),
+            },
+        }
+    if key == EVT_ON_DEATH:
+        return {
+            "event_type": key,
+            "verb": "died",
+            "object": event.source,
+            "modifier": {"final_hp": data.get("final_hp")},
+        }
+    return None
+
+def _build_turn_flow_payload(key: str, event: CombatEvent, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if key == EVT_TURN_STARTED:
+        return {
+            "event_type": key,
+            "verb": "activated",
+            "object": event.source,
+            "modifier": {"action_energy": data.get("action_energy")},
+        }
+    if key == EVT_TURN_ENDED:
+        return {
+            "event_type": key,
+            "verb": "ended_turn",
+            "object": event.source,
+            "modifier": {"ap_spent": data.get("ap_spent", 0)},
+        }
+    if key == EVT_ROUND_ENDED:
+        return {
+            "event_type": key,
+            "verb": "round_concluded",
+            "object": event.source,
+            "modifier": {
+                "hp": data.get("hp"),
+                "modifiers": data.get("modifiers", []),
+            },
+        }
+    return None
+
+def _build_modifier_payload(key: str, event: CombatEvent, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if key == EVT_MODIFIER_ADDED:
+        return {
+            "event_type": key,
+            "verb": "received_effect",
+            "object": event.source,
+            "modifier": {
+                "name": data.get("modifier"),
+                "stat": data.get("stat"),
+                "value": data.get("value"),
+                "expires_on": data.get("expires_on", []),
+            },
+        }
+    if key == EVT_MODIFIER_EXPIRED:
+        return {
+            "event_type": key,
+            "verb": "effect_expired",
+            "object": event.source,
+            "modifier": {
+                "name": data.get("modifier"),
+                "stat": data.get("stat"),
+            },
+        }
+    return None
+
+def _build_social_payload(key: str, event: CombatEvent, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if key == EVT_SOCIAL_STRESS_SPIKE:
+        return {
+            "event_type": key,
+            "verb": "stressed",
+            "object": event.source,
+            "modifier": {
+                "cause": data.get("cause"),
+                "magnitude": data.get("magnitude"),
+                "source_entity": data.get("source_entity"),
+            },
+        }
+    if key == EVT_SOCIAL_DISPOSITION_SHIFT:
+        return {
+            "event_type": key,
+            "verb": "reputation_shifted",
+            "object": event.source,
+            "modifier": {
+                "direction": data.get("direction"),
+                "amount": data.get("amount"),
+                "reason": data.get("reason"),
+                "party_entity": data.get("party_entity"),
+            },
+        }
+    return None
+
 def build_payload(event: CombatEvent) -> Dict[str, Any]:
     """
     Build the Chronicle-normalized payload from a raw CombatEvent.
@@ -208,117 +320,17 @@ def build_payload(event: CombatEvent) -> Dict[str, Any]:
     key = event.event_key
     data = event.data
 
-    # --- Combat events ---
-    if key == EVT_TURN_STARTED:
-        return {
-            "event_type": key,
-            "verb": "activated",
-            "object": event.source,
-            "modifier": {"action_energy": data.get("action_energy")},
-        }
+    payload = _build_combat_action_payload(key, event, data)
+    if payload is not None: return payload
 
-    if key == EVT_ACTION_RESOLVED:
-        return {
-            "event_type": key,
-            "verb": "attacked",
-            "object": event.target or data.get("defender", "unknown"),
-            "modifier": {
-                "outcome": data.get("outcome"),
-                "damage": data.get("damage"),
-                "roll_total": data.get("roll", {}).get("total"),
-                "dc": data.get("dc"),
-                "is_crit": data.get("roll", {}).get("is_crit", False),
-                "is_fumble": data.get("roll", {}).get("is_fumble", False),
-            },
-        }
+    payload = _build_turn_flow_payload(key, event, data)
+    if payload is not None: return payload
 
-    if key == EVT_ON_DAMAGE:
-        return {
-            "event_type": key,
-            "verb": "took_damage",
-            "object": event.source,
-            "modifier": {
-                "amount": data.get("amount"),
-                "hp_remaining": data.get("hp_remaining"),
-            },
-        }
+    payload = _build_modifier_payload(key, event, data)
+    if payload is not None: return payload
 
-    if key == EVT_ON_DEATH:
-        return {
-            "event_type": key,
-            "verb": "died",
-            "object": event.source,
-            "modifier": {"final_hp": data.get("final_hp")},
-        }
-
-    if key == EVT_TURN_ENDED:
-        return {
-            "event_type": key,
-            "verb": "ended_turn",
-            "object": event.source,
-            "modifier": {"ap_spent": data.get("ap_spent", 0)},
-        }
-
-    if key == EVT_ROUND_ENDED:
-        return {
-            "event_type": key,
-            "verb": "round_concluded",
-            "object": event.source,
-            "modifier": {
-                "hp": data.get("hp"),
-                "modifiers": data.get("modifiers", []),
-            },
-        }
-
-    if key == EVT_MODIFIER_ADDED:
-        return {
-            "event_type": key,
-            "verb": "received_effect",
-            "object": event.source,
-            "modifier": {
-                "name": data.get("modifier"),
-                "stat": data.get("stat"),
-                "value": data.get("value"),
-                "expires_on": data.get("expires_on", []),
-            },
-        }
-
-    if key == EVT_MODIFIER_EXPIRED:
-        return {
-            "event_type": key,
-            "verb": "effect_expired",
-            "object": event.source,
-            "modifier": {
-                "name": data.get("modifier"),
-                "stat": data.get("stat"),
-            },
-        }
-
-    # --- Social events ---
-    if key == EVT_SOCIAL_STRESS_SPIKE:
-        return {
-            "event_type": key,
-            "verb": "stressed",
-            "object": event.source,
-            "modifier": {
-                "cause": data.get("cause"),
-                "magnitude": data.get("magnitude"),
-                "source_entity": data.get("source_entity"),
-            },
-        }
-
-    if key == EVT_SOCIAL_DISPOSITION_SHIFT:
-        return {
-            "event_type": key,
-            "verb": "reputation_shifted",
-            "object": event.source,
-            "modifier": {
-                "direction": data.get("direction"),
-                "amount": data.get("amount"),
-                "reason": data.get("reason"),
-                "party_entity": data.get("party_entity"),
-            },
-        }
+    payload = _build_social_payload(key, event, data)
+    if payload is not None: return payload
 
     # --- Fallback: unknown / session marker events ---
     return {
@@ -327,7 +339,6 @@ def build_payload(event: CombatEvent) -> Dict[str, Any]:
         "object": event.source,
         "modifier": dict(data),
     }
-
 
 # ============================================================
 # SIGNIFICANCE SCORER
@@ -578,8 +589,8 @@ if __name__ == "__main__":
     import os
     from engine.combat import (
         Combatant, FoeFactory, CombatEngine,
-        wire_social_state_stubs,
     )
+    from engine.social_state import SocialStateSystem
 
     with tempfile.TemporaryDirectory() as tmpdir:
         chronicle_path = Path(tmpdir) / "sessions" / "chronicle.jsonl"
@@ -593,7 +604,7 @@ if __name__ == "__main__":
             player_present=True,
         )
 
-        wire_social_state_stubs(bus)
+        social_system = SocialStateSystem(bus)
         engine = CombatEngine(bus)
 
         hero = Combatant(

@@ -32,6 +32,27 @@ class Rumor:
     significance: int # 1-5
     biome_requirement: Optional[str] = None
 
+class BSPDungeonGenerator:
+    """
+    Stub for Phase 3 BSP dungeon generation.
+    Used when a chunk resolves a PoL with pol_type="dungeon".
+    """
+    def __init__(self, width: int, height: int, seed: int):
+        self.width = width
+        self.height = height
+        self.rng = random.Random(seed)
+        
+    def generate(self) -> Dict[str, Any]:
+        """
+        Return a basic structure for the dungeon.
+        Phase 3: implement actual BSP splitting and room carving.
+        """
+        return {
+            "type": "dungeon",
+            "rooms": [],  # Will contain lists of tuples/rects
+            "tiles": [["wall" for _ in range(self.width)] for _ in range(self.height)]
+        }
+
 class ChunkManager:
     """
     Manages the generation and caching of world chunks.
@@ -76,6 +97,11 @@ class ChunkManager:
             resolved = self.rumor_queue.pop(0)
             chunk_data["pol"] = resolved
             chunk_data["terrain"] = f"structured_{resolved.pol_type}"
+            
+            # Phase 3 stub wiring
+            if resolved.pol_type == "dungeon":
+                dungeon_gen = BSPDungeonGenerator(width=40, height=40, seed=chunk_seed)
+                chunk_data["dungeon_layout"] = dungeon_gen.generate()
             
         return chunk_data
 

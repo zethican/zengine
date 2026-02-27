@@ -8,7 +8,7 @@ To ensure ZEngine remains lean, deterministic, and local-first, all code generat
 
 3. **No Dynamic Logic Injection:** Avoid using `exec()` or `eval()`. Engine behavior should be defined by data (JSON/Components) and explicit System logic.
 
-4. **The 60-Line Function Limit:** No function or method should exceed 120 lines. If a feature (like a Map Generator) is complex, decompose it into smaller, discrete sub-steps.
+4. **The 120-Line Function Limit:** No function or method should exceed 120 lines. If a feature (like a Map Generator) is complex, decompose it into smaller, discrete sub-steps.
 
 5. **Defensive State Access:** Never assume an Entity or Component exists. Every `get` or `lookup` must handle `None` or missing keys explicitly to prevent runtime crashes.
 
