@@ -1,0 +1,11 @@
+[[rumors]]
+id = "pol_keep"
+name = "The Obsidian Keep"
+pol_type = "dungeon"
+significance = 5
+
+[[rumors]]
+id = "pol_camp"
+name = "Hidden Seeker Camp"
+pol_type = "encampment"
+significance = 2

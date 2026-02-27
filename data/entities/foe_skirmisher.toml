@@ -1,0 +1,6 @@
+id = "foe_skirmisher"
+name = "Cave Skirmisher"
+hp = 15
+speed = 12.0
+archetype = "Skirmisher"
+abilities = ["basic_attack"]

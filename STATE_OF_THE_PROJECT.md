@@ -1,71 +1,68 @@
 # STATE_OF_THE_PROJECT.md
 
-**Last Updated:** 2026-02-27 (Phase 1 close-out)
+**Last Updated:** 2026-02-27 21:00 (final Phase 2 core checkpoint)
 
 ---
 
 ## Quick Status Snapshot
 
-| Aspect | Status | Details |
-| --- | --- | --- |
-| **Current Phase** | 2 (implementation) | Phase 1 contracts complete and locked |
-| **Phase 1 Contracts** | ✅ Final | COMPONENTS.md, EVENTS.md, SYSTEMS.md — locked |
-| **Design Freeze** | ✅ Locked | All major decisions in CONTEXT.md; closed doors documented |
-| **Next Immediate Task** | Phase 2 implementation | engine/chronicle.py first |
-| **Active Agent** | Ready | Phase 2 unblocked; no outstanding blockers |
+| Aspect                  | Status                  | Details                                                      |
+| ----------------------- | ----------------------- | ------------------------------------------------------------ |
+| **Current Phase**       | 2 (implementation)      | Phase 2 Logic & Generation complete                          |
+| **Phase 2 Status**      | ✅ CORE FEATURE COMPLETE | All systems, world gen, and seed data verified (24/24 tests) |
+| **Next Immediate Task** | Phase 2 full loop       | Integration of world, combat, and social into main loop      |
+| **Active Agent**        | Ready                   | Core is data-driven; full loop integration next              |
 
 ---
 
 ## What Exists Right Now
 
 ### Documentation (complete)
+
 - ✅ CONTEXT.md — Single source of truth (updated to Phase 2)
 - ✅ AGENT_ONBOARDING.md — Agent ritual templates and hard limits
 - ✅ DESIGN_VARIABLES.md — All 20 parameters with confirmed values
 - ✅ FUTURE.md — 20+ post-MVP deferred items
 - ✅ DO_NOT_TOUCH.md — Phase 1 locks applied; Phase 2 targets listed
 
-### Phase 1 Contracts (final — locked)
-- ✅ COMPONENTS.md — ECS component taxonomy (8 layers, all fields typed)
-- ✅ EVENTS.md — Event catalog and typed payloads (10 EVT_* constants, full dispatch sequence)
-- ✅ SYSTEMS.md — System dispatch contracts (16 systems, canonical ordering, Chronicle schema)
+### Phase 2 Implementation (Core Feature Complete)
 
-### Code (minimal — Phase 0 stub)
-- ✅ engine/combat.py — Canonical stub (EventBus, Combatant, Modifier, CombatEngine, FoeFactory)
-  - AP_POOL_SIZE = 100 ✅
-  - MOVEMENT_ALLOCATION = "ceil(100/speed)" ✅
-  - Smoke test passes ✅
+- ✅ engine/chronicle.py — Chronicle write/query interface (append-only JSONL)
+- ✅ engine/social_state.py — Social State schema and stress reaction logic
+- ✅ engine/equilibrium.py — Vitality, Taper formula, and conduction math
+- ✅ engine/ecs/components.py — Core ECS components (Vitals, Economy, Position)
+- ✅ engine/ecs/systems.py — ECS systems for turn resolution and actions
+- ✅ world/generator.py — Chunk-based world generator with rumor resolution
+- ✅ data/ — Minimal Viable Encounter dataset (Abilities, Entities, World Rumors)
+- ✅ ui/renderer.py — tcod terminal renderer stub
+- ✅ 24/24 Unit Tests passing — verified core system logic and data loading
 
 ### Archive (not in tree)
+
 - 📦 user_scratch/ — Raw content dump (ZEngine_Manifest_v0_2.pdf, MCP_GUIDE.md, etc.)
 
 ---
 
 ## Phase Gates & Blockers
 
-### Phase 0 → 1 (Complete)
-**Status:** ✅ CLOSED
+### Phase 2 Implementation Gate
 
-- ✅ Social Layer catch-up ticks → `SOCIAL_CATCHUP_TICKS = 5`
-- ✅ AP pool size → `AP_POOL_SIZE = 100`
-- ✅ Movement allocation → `ceil(100/speed)` formula confirmed
+**Status:** ✅ COMPLETE — moving to Phase 2 Integration
 
-### Phase 1 Exit Gate
-**Status:** ✅ PASSED
+**Completed in Phase 2:**
 
-- ✅ COMPONENTS.md — complete and peer-reviewed
-- ✅ EVENTS.md — complete and peer-reviewed
-- ✅ SYSTEMS.md — complete and peer-reviewed
-- ✅ Pre-flight audit complete (docstring, CONTEXT.md, moral_weight/resilience gap closed)
-- ✅ DO_NOT_TOUCH.md locks applied
+- SocialStateSystem reactive stress tracking
+- Equilibrium world-state math
+- ECS core component taxonomy and systems
+- Chunk-based world generator with PoL resolution
+- TCOD renderer initialization
 
-### Phase 2 Entry Gate
-**Status:** ✅ OPEN — no blockers
+**Next Steps (Phase 2 Integration & Full Loop):**
 
-**Phase 2 carry-in items (resolve during implementation):**
-- `EventPayload.data` typed dicts per event type (Phase 1 hardening task; deferred)
-- `moral_weight` and `resilience` in `disposition` component — confirm writer isolation in social_state.py
-- Combat roll display toggle — Phase 6 UI pass; default = "category"
+- [ ] Wire full encounter loop with ECS systems
+- [ ] Integrate ChunkManager with ECS Spatial Layer
+- [ ] Phase 2 smoke test (Full Loop): Gen -> Explore -> Combat -> Social Spike -> Chronicle Inscribe
+- [ ] Phase 3 Prep: world/generator.py expansion (BSP dungeons)
 
 ---
 
@@ -87,28 +84,28 @@
 
 ## Design Variables (Confirmed)
 
-| Variable | Value | Notes |
-| --- | --- | --- |
-| ENERGY_THRESHOLD | 100.0 | Turn eligibility threshold |
-| AP_POOL_SIZE | 100 | Resets each turn; matches ENERGY_THRESHOLD scale |
-| MOVEMENT_ALLOCATION | ceil(100/speed) | AP per tile; ceiling rounding; speed-derived |
-| SOCIAL_CATCHUP_TICKS | 5 | Session boundary advance |
-| CATCHUP_TRANSITION_CAP | 1 | Max state transitions per node per session boundary |
-| CRIT_THRESHOLD | 20 | d20 natural roll |
-| FUMBLE_THRESHOLD | 1 | d20 natural roll |
-| BASE_HIT_DC | 10 | Default defense class when no stat provided |
-| COMBAT_ROLL_DISPLAY | "category" | fumble/miss/graze/hit/crit |
-| REPUTATION_OSTRACIZATION | -0.3 | Threshold; configurable |
-| REPUTATION_COOPERATION | 0.4 | Threshold; configurable |
-| STRESS_EXODUS_THRESHOLD | 0.7 | float 0.0–1.0 |
-| STRESS_PASSIVE_DECAY_RATE | 0.0 | 0.0 = no passive decay |
-| EQUILIBRIUM_BASE_RESISTANCE | 40 | Range 20–80 |
-| CONDUCTION_COEFFICIENT | 0.3 | 0.0 disables conduction |
-| CONDUCTION_ATTENUATION | 0.6 | Per distance unit; range 0.1–0.9 |
-| CHRONICLE_SIGNIFICANCE_MIN | 2 | Minimum inscription threshold; range 1–5 |
-| CHRONICLE_CONFIDENCE_WITNESSED | 0.9 | |
-| CHRONICLE_CONFIDENCE_FABRICATED | 0.4 | |
-| VITALITY_CACHE | NOT_IMPLEMENTED | Stub field; do not read or write MVP |
+| Variable                        | Value           | Notes                                               |
+| ------------------------------- | --------------- | --------------------------------------------------- |
+| ENERGY_THRESHOLD                | 100.0           | Turn eligibility threshold                          |
+| AP_POOL_SIZE                    | 100             | Resets each turn; matches ENERGY_THRESHOLD scale    |
+| MOVEMENT_ALLOCATION             | ceil(100/speed) | AP per tile; ceiling rounding; speed-derived        |
+| SOCIAL_CATCHUP_TICKS            | 5               | Session boundary advance                            |
+| CATCHUP_TRANSITION_CAP          | 1               | Max state transitions per node per session boundary |
+| CRIT_THRESHOLD                  | 20              | d20 natural roll                                    |
+| FUMBLE_THRESHOLD                | 1               | d20 natural roll                                    |
+| BASE_HIT_DC                     | 10              | Default defense class when no stat provided         |
+| COMBAT_ROLL_DISPLAY             | "category"      | fumble/miss/graze/hit/crit                          |
+| REPUTATION_OSTRACIZATION        | -0.3            | Threshold; configurable                             |
+| REPUTATION_COOPERATION          | 0.4             | Threshold; configurable                             |
+| STRESS_EXODUS_THRESHOLD         | 0.7             | float 0.0–1.0                                       |
+| STRESS_PASSIVE_DECAY_RATE       | 0.0             | 0.0 = no passive decay                              |
+| EQUILIBRIUM_BASE_RESISTANCE     | 40              | Range 20–80                                         |
+| CONDUCTION_COEFFICIENT          | 0.3             | 0.0 disables conduction                             |
+| CONDUCTION_ATTENUATION          | 0.6             | Per distance unit; range 0.1–0.9                    |
+| CHRONICLE_SIGNIFICANCE_MIN      | 2               | Minimum inscription threshold; range 1–5            |
+| CHRONICLE_CONFIDENCE_WITNESSED  | 0.9             |                                                     |
+| CHRONICLE_CONFIDENCE_FABRICATED | 0.4             |                                                     |
+| VITALITY_CACHE                  | NOT_IMPLEMENTED | Stub field; do not read or write MVP                |
 
 ---
 
@@ -117,6 +114,7 @@
 ### Session: 2026-02-27 (Phase 1 Contracts + Close-out)
 
 **Completed:**
+
 - Drafted COMPONENTS.md — 8-layer ECS component taxonomy with full field types, lifecycle, read/write isolation
 - Drafted EVENTS.md — 10 EVT_* constants, TypedDict payloads, canonical turn resolution sequence
 - Drafted SYSTEMS.md — 16 systems, dispatch ordering, Chronicle entry schema, Equilibrium Taper formula, Legacy Conversion sequence
@@ -124,11 +122,27 @@
 - All Phase 1 contracts locked in DO_NOT_TOUCH.md
 - Established hourly STATE_OF_THE_PROJECT.md checkpoint (scheduled task: zengine-project-checkpoint)
 
-**Next:** Phase 2 implementation — begin with engine/chronicle.py
+**Next:** Phase 2 implementation — move logic to ECS systems
+
+### Session: 2026-02-27 (ECS Systems Migration + Core Logic)
+
+**Completed:**
+
+- Implemented `SocialStateSystem` in `engine/social_state.py` with reactive stress tracking and event emission.
+- Implemented `Equilibrium` math in `engine/equilibrium.py` including Taper formula and conduction.
+- Defined core ECS components in `engine/ecs/components.py` (Vitals, Economy, Position, Stats).
+- Migrated turn resolution and action economy logic to `engine/ecs/systems.py`.
+- Implemented `action_resolution_system` for attack handling in ECS.
+- Created `ui/renderer.py` stub for TCOD console management.
+- Verified all core systems with 18/18 passing unit tests.
+- Integrated Social Layer into combat smoke test; verified real-time stress accumulation.
+
+**Next:** Phase 2 world generation — implement chunked generator in `world/generator.py`
 
 ### Session: 2026-02-27 (Project Scaffolding)
 
 **Completed:**
+
 - Read all user_scratch files (CONTEXT, AUTHORITATIVE_GROUND_TRUTH, combat.py, MCP_GUIDE, AGENT_ONBOARDING)
 - Created root documentation structure (CONTEXT.md, AGENT_ONBOARDING.md, DESIGN_VARIABLES.md, FUTURE.md, DO_NOT_TOUCH.md)
 - Copied canonical combat.py stub to engine/combat.py
@@ -139,7 +153,8 @@
 ## Upcoming Milestones
 
 ### Phase 2 (Active)
-- [ ] engine/chronicle.py — Chronicle write/query interface (append-only JSONL)
+
+- [x] engine/chronicle.py — Chronicle write/query interface (append-only JSONL) ✅
 - [ ] engine/social_state.py — Social State schema and transition logic
 - [ ] engine/equilibrium.py — Vitality, Taper formula, conduction
 - [ ] engine/ecs/ — ECS component and system definitions
@@ -148,10 +163,12 @@
 - [ ] Smoke tests pass for all Phase 2 systems
 
 ### Phase 3 (Post-Phase-2)
+
 - [ ] world/generator.py — procedural dungeon/wilderness generation
 - [ ] Encounter density driver (legacy actor spawning)
 
 ### Phase 4+ (Content & Polish)
+
 - [ ] data/ directory (abilities, grammar, templates, chronicle significance)
 - [ ] Sessions management (chronicle.jsonl, spatial_snapshot.toml)
 
@@ -160,6 +177,7 @@
 ## Known Post-MVP Deferrals
 
 See `FUTURE.md` for full list. Key items:
+
 - AP carry-over / reaction economy
 - Real-time Social Layer daemon (replace session-boundary tick)
 - Vitality caching system
@@ -182,9 +200,11 @@ See `FUTURE.md` for full list. Key items:
 
 ## Automated Update Log
 
-| Timestamp | Change | Trigger |
-| --- | --- | --- |
-| 2026-02-27 16:00 | Initial scaffold | Project setup complete |
-| 2026-02-27 (end of session) | Phase 1 close-out — contracts final, locks applied, Phase 2 open | Pre-flight audit complete |
+| Timestamp                   | Change                                                                                                                                                                   | Trigger                   |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------- |
+| 2026-02-27 16:00            | Initial scaffold                                                                                                                                                         | Project setup complete    |
+| 2026-02-27 (end of session) | Phase 1 close-out — contracts final, locks applied, Phase 2 open                                                                                                         | Pre-flight audit complete |
+| 2026-02-27 (Phase 2 start)  | engine/chronicle.py implemented — ChronicleInscriber, ChronicleEntry, ChronicleReader, GameTimestamp; smoke test: 38 entries, death events, session markers all verified | Phase 2 session           |
+| 2026-02-27 20:01            | Hourly checkpoint — no new files since last update. engine/chronicle.py (653 lines), engine/combat.py (604 lines). Phase 2 active; next target: engine/social_state.py   | Scheduled task (hourly)   |
 
 (Auto-updated by scheduled task every hour; user can also request manual refresh)

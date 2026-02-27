@@ -358,11 +358,11 @@ class Combatant:
                     source=self.name,
                     data={"final_hp": self.hp},
                 ))
-                # Social State hook stub — no-op until Phase 1
+                # Death triggers a major stress spike (processed by SocialStateSystem)
                 b.emit(CombatEvent(
                     event_key=EVT_SOCIAL_STRESS_SPIKE,
                     source=self.name,
-                    data={"cause": "combat_death", "magnitude": 0.0},
+                    data={"cause": "combat_death", "magnitude": 0.5},
                 ))
 
 
@@ -506,25 +506,17 @@ class CombatEngine:
 
 
 # ============================================================
-# SOCIAL STATE STUBS  (Phase 0 no-ops — wire in social_state.py)
-# These subscriptions MUST exist. Do not remove.
+# SOCIAL STATE HOOKS
+# These hooks link the combat layer to the social layer.
+# In Phase 2, these are wired into SocialStateSystem via bus subscriptions.
 # ============================================================
 
-def _stub_on_combat_damage(event: CombatEvent) -> None:
-    pass  # Phase 1: shift disposition based on damage severity
-
-
-def _stub_on_combatant_death(event: CombatEvent) -> None:
-    pass  # Phase 1: trigger grief/fear/rage disposition cascade
-
-
-def wire_social_state_stubs(bus: EventBus) -> None:
+def wire_social_state_system(bus: EventBus, social_system: Any) -> None:
     """
-    Call at encounter initialization.
-    Replaced in Phase 1 by real social_state.py handlers.
+    SocialStateSystem self-subscribes at initialization.
+    This helper is kept for explicit dependency injection if needed.
     """
-    bus.subscribe(EVT_ON_DAMAGE, _stub_on_combat_damage)
-    bus.subscribe(EVT_ON_DEATH,  _stub_on_combatant_death)
+    pass # SocialStateSystem handles its own subscriptions in __init__
 
 
 # ============================================================
@@ -532,6 +524,7 @@ def wire_social_state_stubs(bus: EventBus) -> None:
 # ============================================================
 
 if __name__ == "__main__":
+    from engine.social_state import SocialStateSystem
     bus = EventBus()
 
     # Chronicle stub — prints every event in emission order
@@ -541,7 +534,7 @@ if __name__ == "__main__":
               f"{event.data}")
 
     bus.subscribe("*", chronicle_log)
-    wire_social_state_stubs(bus)
+    social = SocialStateSystem(bus)
 
     engine = CombatEngine(bus)
 
@@ -596,6 +589,8 @@ if __name__ == "__main__":
               f"{log['outcome'].upper()} "
               f"[roll {log['roll']['total']} vs DC {log['dc']}] "
               f"dmg={log['damage']} | {hero.name} HP={log['defender_hp']}")
+
+        print(f"  (SOCIAL) {foe.name} Stress: {social.get_stress(foe.name):.2f} | {hero.name} Stress: {social.get_stress(hero.name):.2f}")
 
         engine.end_round([hero, foe])
         round_num += 1
