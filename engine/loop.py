@@ -39,6 +39,7 @@ from engine.ecs.components import (
     ActionEconomy, 
     EntityIdentity, 
     CombatStats,
+    MovementStats,
     Position
 )
 from world.generator import ChunkManager, Rumor
@@ -73,7 +74,108 @@ class SimulationLoop:
         self.inscriber.open_session()
 
     def close_session(self) -> None:
+        """Closes the current tracking session but does NOT write a spatial snapshot."""
         self.inscriber.close_session()
+
+    def save_session(self, snapshot_path: Optional[Path] = None) -> None:
+        """
+        Saves the critical world state to TOML, intentionally collapsing ephemeral context.
+        Only the player, key named NPCs, and global time/world properties are persisted.
+        """
+        if snapshot_path is None:
+            snapshot_path = Path("sessions/spatial_snapshot.toml")
+            
+        snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        lines = []
+        lines.append("[world]")
+        lines.append(f'era = "{self.clock.era}"')
+        lines.append(f"cycle = {self.clock.cycle}")
+        lines.append(f"tick = {self.clock.tick}")
+        lines.append(f"world_seed = {self.world.world_seed}")
+        lines.append("")
+        
+        for entity in self.registry.Q.all_of(components=[EntityIdentity, Position, CombatVitals]):
+            ident = entity.components[EntityIdentity]
+            
+            # Context Collapse: Ephemeral random encounters are not saved.
+            # They will be regenerated functionally by the Wilderness density driver.
+            if not ident.is_player and ident.archetype in ["Skirmisher", "Minion"]:
+                continue
+                
+            pos = entity.components[Position]
+            vitals = entity.components[CombatVitals]
+            
+            stats = entity.components.get(CombatStats)
+            atk = stats.attack_bonus if stats else 0
+            dmg = stats.damage_bonus if stats else 0
+            dfn = stats.defense_bonus if stats else 0
+            
+            mov = entity.components.get(MovementStats)
+            speed = mov.speed if mov else 10.0
+            
+            lines.append("[[entities]]")
+            lines.append(f"id = {ident.entity_id}")
+            lines.append(f'name = "{ident.name}"')
+            lines.append(f'archetype = "{ident.archetype}"')
+            lines.append(f"is_player = {'true' if ident.is_player else 'false'}")
+            lines.append(f"x = {pos.x}")
+            lines.append(f"y = {pos.y}")
+            lines.append(f"hp = {vitals.hp}")
+            lines.append(f"max_hp = {vitals.max_hp}")
+            lines.append(f"attack_bonus = {atk}")
+            lines.append(f"damage_bonus = {dmg}")
+            lines.append(f"defense_bonus = {dfn}")
+            lines.append(f"speed = {speed}")
+            lines.append("")
+            
+        with open(snapshot_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+            
+    def resume_session(self, snapshot_path: Optional[Path] = None) -> None:
+        """
+        Restores the world from the exact moment of a spatial_snapshot.toml save.
+        """
+        import tomllib
+        
+        if snapshot_path is None:
+            snapshot_path = Path("sessions/spatial_snapshot.toml")
+            
+        if not snapshot_path.exists():
+            raise FileNotFoundError(f"Cannot resume, missing {snapshot_path}")
+            
+        with open(snapshot_path, "rb") as f:
+            data = tomllib.load(f)
+            
+        # Restore world
+        wdata = data.get("world", {})
+        self.clock = GameTimestamp(era=wdata.get("era", "Recent"), cycle=wdata.get("cycle", 1), tick=wdata.get("tick", 1))
+        self.inscriber.clock = self.clock
+        # Rebuild ChunkManager with the saved seed
+        self.world = ChunkManager(world_seed=wdata.get("world_seed", random.randint(1, 10000)))
+        
+        # Restore registry
+        self.registry = tcod.ecs.Registry()
+        
+        for edata in data.get("entities", []):
+            ent = self.registry.new_entity()
+            ent.components[EntityIdentity] = EntityIdentity(
+                entity_id=edata["id"],
+                name=edata["name"],
+                archetype=edata["archetype"],
+                is_player=edata.get("is_player", False)
+            )
+            ent.components[Position] = Position(x=edata["x"], y=edata["y"])
+            ent.components[CombatVitals] = CombatVitals(hp=edata["hp"], max_hp=edata["max_hp"])
+            ent.components[CombatStats] = CombatStats(
+                attack_bonus=edata.get("attack_bonus", 0),
+                damage_bonus=edata.get("damage_bonus", 0),
+                defense_bonus=edata.get("defense_bonus", 0)
+            )
+            ent.components[ActionEconomy] = ActionEconomy()
+            ent.components[MovementStats] = MovementStats(speed=edata.get("speed", 10.0))
+            
+        self.open_session()
 
     def tick(self) -> None:
         """Advance the simulation by one engine tick."""

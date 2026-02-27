@@ -8,10 +8,10 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 2 (implementation)      | Phase 2 Logic & Generation complete                          |
-| **Phase 2 Status**      | ✅ CORE FEATURE COMPLETE | All systems, world gen, and seed data verified (24/24 tests) |
-| **Next Immediate Task** | Phase 2 full loop       | Integration of world, combat, and social into main loop      |
-| **Active Agent**        | Ready                   | Core is data-driven; full loop integration next              |
+| **Current Phase**       | 5 (TBD / Post-MVP)      | Phase 4 Content & Polish complete and verified               |
+| **Phase 4 Status**      | ✅ IMPLEMENTED           | JIT TOML definitions and Context Collapsing Sessions built   |
+| **Next Immediate Task** | Review Next Phase       | Awaiting user direction on Phase 5 or feature requests       |
+| **Active Agent**        | Ready                   | Phase 4 complete                                             |
 
 ---
 
@@ -47,22 +47,14 @@
 
 ### Phase 2 Implementation Gate
 
-**Status:** ✅ COMPLETE — moving to Phase 2 Integration
+**Status:** ✅ COMPLETE — moving to Post-MVP / TBD
 
-**Completed in Phase 2:**
+**Completed in Phase 4 Content & Polish:**
+- JIT TOML parsing loader using Pydantic
+- Session context collapsing (saving/resuming state without ephemeral noise)
 
-- SocialStateSystem reactive stress tracking
-- Equilibrium world-state math
-- ECS core component taxonomy and systems
-- Chunk-based world generator with PoL resolution
-- TCOD renderer initialization
-
-**Next Steps (Phase 2 Integration & Full Loop):**
-
-- [ ] Wire full encounter loop with ECS systems
-- [ ] Integrate ChunkManager with ECS Spatial Layer
-- [ ] Phase 2 smoke test (Full Loop): Gen -> Explore -> Combat -> Social Spike -> Chronicle Inscribe
-- [ ] Phase 3 Prep: world/generator.py expansion (BSP dungeons)
+**Next Steps (Phase 5/TBD):**
+- Awaiting next target directive from user.
 
 ---
 
@@ -152,25 +144,25 @@
 
 ## Upcoming Milestones
 
-### Phase 2 (Active)
+### Phase 2 (Completed)
 
 - [x] engine/chronicle.py — Chronicle write/query interface (append-only JSONL) ✅
-- [ ] engine/social_state.py — Social State schema and transition logic
-- [ ] engine/equilibrium.py — Vitality, Taper formula, conduction
-- [ ] engine/ecs/ — ECS component and system definitions
-- [ ] ui/renderer.py — tcod terminal renderer
-- [ ] Wire combat system into full encounter loop
-- [ ] Smoke tests pass for all Phase 2 systems
+- [x] engine/social_state.py — Social State schema and transition logic ✅
+- [x] engine/equilibrium.py — Vitality, Taper formula, conduction ✅
+- [x] engine/ecs/ — ECS component and system definitions ✅
+- [x] ui/renderer.py — tcod terminal renderer ✅
+- [x] Wire combat system into full encounter loop ✅
+- [x] Smoke tests pass for all Phase 2 systems ✅
 
-### Phase 3 (Post-Phase-2)
+### Phase 3 (Completed)
 
-- [ ] world/generator.py — procedural dungeon/wilderness generation
-- [ ] Encounter density driver (legacy actor spawning)
+- [x] world/generator.py — procedural dungeon/wilderness generation (BSP) ✅
+- [x] Encounter density driver (legacy actor spawning) ✅
 
-### Phase 4+ (Content & Polish)
+### Phase 4+ (Completed)
 
-- [ ] data/ directory (abilities, grammar, templates, chronicle significance)
-- [ ] Sessions management (chronicle.jsonl, spatial_snapshot.toml)
+- [x] data/ directory (abilities, grammar, templates, chronicle significance) ✅
+- [x] Sessions management (chronicle.jsonl, spatial_snapshot.toml) ✅
 
 ---
 
@@ -203,8 +195,10 @@ See `FUTURE.md` for full list. Key items:
 | Timestamp                   | Change                                                                                                                                                                   | Trigger                   |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------- |
 | 2026-02-27 16:00            | Initial scaffold                                                                                                                                                         | Project setup complete    |
-| 2026-02-27 (end of session) | Phase 1 close-out — contracts final, locks applied, Phase 2 open                                                                                                         | Pre-flight audit complete |
+| 2026-02-27 (Phase 1 end)    | Phase 1 close-out — contracts final, locks applied, Phase 2 open                                                                                                         | Pre-flight audit complete |
 | 2026-02-27 (Phase 2 start)  | engine/chronicle.py implemented — ChronicleInscriber, ChronicleEntry, ChronicleReader, GameTimestamp; smoke test: 38 entries, death events, session markers all verified | Phase 2 session           |
-| 2026-02-27 20:01            | Hourly checkpoint — no new files since last update. engine/chronicle.py (653 lines), engine/combat.py (604 lines). Phase 2 active; next target: engine/social_state.py   | Scheduled task (hourly)   |
+| 2026-02-27 (Phase 2 end)    | Phase 2 Integration complete. Full simulation loop written in `engine/loop.py`. Automated end-to-end smoke test passes. `BSPDungeonGenerator` stub added. Now Phase 3.    | Phase 2 Integration close-out |
+| 2026-02-27 (Phase 3 end)    | Phase 3 World Gen complete. BSP algorithm and dynamic density wilderness encounters via `ChronicleReader` implemented and tested. Proceeding to Phase 4.                 | Phase 3 close-out |
+| 2026-02-27 (Phase 4 end)    | Phase 4 complete. Data loaders wired with Pydantic for JIT caching of TOML seed data, combined with Session Management context collapsing.                             | Phase 4 close-out |
 
 (Auto-updated by scheduled task every hour; user can also request manual refresh)
