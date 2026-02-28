@@ -1,0 +1,40 @@
+# data/world/chunks/wayfarers_hearth.toml
+id = "wayfarers_hearth"
+name = "The Wayfarer's Hearth"
+description = "A warm, expansive inn. The common room is large, flanked by private guest quarters and a sturdy service counter."
+
+map = """
+..................
+.################.
+.#......#.......#.
+.#.ROOM.#..BAR..#.
+.#......#.......#.
+.####+#######+###.
+.#..............#.
+.#....COMMON....#.
+.#......ROOM....#.
+.#..............#.
+.######+#########.
+..................
+"""
+
+[[spawns]]
+type = "npc"
+id = "hero_standard" # NPC Placeholder
+name = "Innkeeper"
+lx = 12
+ly = 3
+
+[[spawns]]
+type = "container"
+name = "Lost & Found"
+lx = 14
+ly = 2
+items = ["consumables/healing_potion", "materials/iron_ingot"]
+
+[[spawns]]
+type = "container"
+name = "Guest Footlocker"
+lx = 3
+ly = 3
+items = ["weapons/iron_sword"]

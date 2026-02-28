@@ -1,6 +1,12 @@
+# data/entities/foe_skirmisher.toml
 id = "foe_skirmisher"
-name = "Cave Skirmisher"
+name = "Skirmisher"
 hp = 15
 speed = 12.0
 archetype = "Skirmisher"
 abilities = ["basic_attack"]
+
+[attributes]
+might = 10
+finesse = 14
+resolve = 8

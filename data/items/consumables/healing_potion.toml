@@ -1,0 +1,15 @@
+# data/items/consumables/healing_potion.toml
+id = "healing_potion"
+name = "Healing Potion"
+description = "A glass vial containing a shimmering red liquid. Smells like berries."
+
+[usable]
+ability_id = "heal"
+consumes = true
+
+[stackable]
+max = 5
+
+[tags]
+is_consumable = true
+is_potion = true

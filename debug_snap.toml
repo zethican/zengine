@@ -1,0 +1,19 @@
+[world]
+era = "Recent"
+cycle = 1
+tick = 1
+world_seed = 15741
+
+[[entities]]
+entities.id = 1
+entities.name = "Aric"
+entities.archetype = "Standard"
+entities.is_player = true
+entities.x = 5
+entities.y = 5
+entities.terrain = "floor"
+[[entities.inventory]]
+entities.inventory.item_id = "iron_sword"
+entities.inventory.item_name = "Iron Sword"
+entities.inventory.item_description = "A standard-issue blade, notched but reliable."
+

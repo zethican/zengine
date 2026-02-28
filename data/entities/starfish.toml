@@ -1,0 +1,17 @@
+# data/entities/starfish.toml
+id = "starfish"
+name = "Burrowing Starfish"
+hp = 25
+speed = 6.0
+archetype = "Stalker"
+abilities = ["heavy_blow"]
+
+[attributes]
+might = 18
+finesse = 6
+resolve = 10
+
+[tags]
+is_aberration = true
+is_hostile = true
+faction = "DeepOnes"

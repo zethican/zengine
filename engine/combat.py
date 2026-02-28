@@ -13,8 +13,8 @@ Architecture notes
 - Combatant.hp is NEVER mutated directly. Use Combatant.apply_damage().
 - Chronicle receives every event via wildcard subscription ("*").
 - Social State hooks are no-op stubs here; wired in engine/social_state.py.
-- d20 resolution is the canonical mechanic (CONTEXT.md Contract 4).
-  The 2d8 prototype (zengine_combat_v0.1.py) is superseded by this file.
+- 2d8 resolution is the canonical mechanic (CONTEXT.md v0.20).
+  A bell-curve model provides more stable median results for social ecology.
 
 Event emission sequence per round
 ----------------------------------
@@ -60,8 +60,8 @@ from pydantic import BaseModel
 # ============================================================
 
 ENERGY_THRESHOLD: float = 100.0
-CRIT_THRESHOLD: int = 20          # d20 natural roll
-FUMBLE_THRESHOLD: int = 1         # d20 natural roll
+CRIT_THRESHOLD: int = 16          # 2d8 natural roll (max)
+FUMBLE_THRESHOLD: int = 2         # 2d8 natural roll (min)
 BASE_HIT_DC: int = 10             # default defense class when no stat provided
 COMBAT_ROLL_DISPLAY: str = "category"   # "category" | "raw"
 
@@ -71,6 +71,7 @@ AP_COST_PICKUP: int = 10                    # AP cost to pick up an item
 AP_COST_DROP: int = 10                      # AP cost to drop an item
 AP_COST_EQUIP: int = 20                     # AP cost to equip an item
 AP_COST_CRAFT: int = 30                     # AP cost to combine two items
+AP_COST_USE: int = 20                       # AP cost to use a consumable item
 MOVEMENT_ALLOCATION: str = "ceil(100/speed)" # Formula; computed per entity at spawn
 
 
@@ -89,8 +90,10 @@ EVT_MODIFIER_ADDED        = "combat.modifier_added"
 EVT_MODIFIER_EXPIRED      = "combat.modifier_expired"
 
 # Social State hook stubs (wired in social_state.py — no-op here)
-EVT_SOCIAL_STRESS_SPIKE        = "social.stress_spike"
-EVT_SOCIAL_DISPOSITION_SHIFT   = "social.disposition_shift"
+EVT_SOCIAL_STRESS_SPIKE: str = "social.stress_spike"
+EVT_SOCIAL_DISPOSITION_SHIFT: str = "social.disposition_shift"
+EVT_SOCIAL_RUMOR_SHARED: str = "social.rumor_shared"
+
 
 
 # ============================================================
@@ -197,18 +200,18 @@ class Modifier:
 # DICE ENGINE
 # ============================================================
 
-def roll_d20() -> int:
-    return random.randint(1, 20)
+def roll_2d8() -> int:
+    return random.randint(1, 8) + random.randint(1, 8)
 
 
 def resolve_roll(modifier: int = 0, advantage: bool = False,
                  disadvantage: bool = False) -> Dict[str, Any]:
     """
-    Roll d20 + modifier vs target DC.
+    Roll 2d8 + modifier vs target DC.
     advantage/disadvantage: roll twice, keep high/low respectively.
     Returns a Chronicle-ready payload dict.
     """
-    rolls = [roll_d20(), roll_d20()]
+    rolls = [roll_2d8(), roll_2d8()]
     if advantage:
         natural = max(rolls)
     elif disadvantage:
@@ -377,7 +380,7 @@ class Combatant:
 class FoeFactory:
     """
     Procedural combatant generator.
-    Threat level scales attack/defense bonuses within d20 range.
+    Threat level scales attack/defense bonuses within 2d8 range.
     Encounter density is driven by Legacy Actor density in territory
     (CONTEXT.md Contract 4) — not spawn tables.
     """
@@ -421,7 +424,7 @@ class CombatEngine:
       EVT_TURN_STARTED → EVT_ACTION_RESOLVED → EVT_TURN_ENDED
     EVT_ROUND_ENDED fires after all actors complete their turns.
 
-    Damage formula: d20 + attacker.attack_bonus vs BASE_HIT_DC + defender.defense_bonus.
+    Damage formula: 2d8 + attacker.attack_bonus vs BASE_HIT_DC + defender.defense_bonus.
     Outcome categories: fumble / miss / graze / hit / critical.
     Raw damage: d6 + damage_bonus (weapon die TBD Phase 2 per ability TOML).
     """

@@ -10,8 +10,8 @@ def test_load_ability_toml():
         data = tomllib.load(f)
         
     assert data["id"] == "basic_attack"
-    assert data["ap_cost"] == 50
-    assert data["damage_die"] == 6
+    assert data["ap_cost"] == 10
+    assert "effects" in data
 
 def test_load_entity_toml():
     path = Path("data/entities/hero_standard.toml")

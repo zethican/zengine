@@ -56,3 +56,9 @@ def test_item_components_exist():
     equip = Equippable(slot_type="hand")
     assert ident.name == "Iron Sword"
     assert equip.slot_type == "hand"
+
+def test_usable_component_exists():
+    from engine.ecs.components import Usable
+    usable = Usable(ability_id="heal", consumes=True)
+    assert usable.ability_id == "heal"
+    assert usable.consumes is True

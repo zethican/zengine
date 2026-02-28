@@ -1,0 +1,17 @@
+# data/entities/shimmer_cat.toml
+id = "shimmer_cat"
+name = "Shimmer Cat"
+hp = 18
+speed = 16.0
+archetype = "Apex Predator"
+abilities = ["basic_attack", "heavy_blow"]
+
+[attributes]
+might = 12
+finesse = 18
+resolve = 14
+
+[tags]
+is_beast = true
+is_predator = true
+faction = "WildFauna"

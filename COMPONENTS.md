@@ -192,7 +192,7 @@ turn_number: int                        # Which turn this entity last acted on
 
 **Fields:**
 ```
-attack_bonus: int                       # Adds to attack roll (d20 + this)
+attack_bonus: int                       # Adds to attack roll (2d8 + this)
 defense_bonus: int                      # Adds to defense class (BASE_HIT_DC + this)
 damage_bonus: int                       # Adds to raw damage dealt
 armor_class: int                        # Alternative to defense_bonus; may be unused in MVP

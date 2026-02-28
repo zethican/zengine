@@ -1,17 +1,27 @@
 import pytest
-from engine.social_state import SocialStateSystem, SocialComponent
+import tcod.ecs
+from engine.social_state import SocialStateSystem
 from engine.combat import EventBus, CombatEvent, EVT_ON_DAMAGE, EVT_ON_DEATH
+from engine.ecs.components import EntityIdentity, Disposition, Stress
 
-def test_social_component_initialization():
-    comp = SocialComponent()
-    assert comp.reputation == 0.0
-    assert comp.moral_weight == 0.5
-    assert comp.stress == 0.0
-    assert comp.resilience == 1.0
+def test_social_components_initialization():
+    registry = tcod.ecs.Registry()
+    ent = registry.new_entity()
+    ent.components[Disposition] = Disposition()
+    ent.components[Stress] = Stress()
+    
+    assert ent.components[Disposition].reputation == 0.0
+    assert ent.components[Disposition].moral_weight == 0.5
+    assert ent.components[Stress].stress_level == 0.0
+    assert ent.components[Disposition].resilience == 1.0
 
 def test_stress_spike_on_damage():
     bus = EventBus()
-    social = SocialStateSystem(bus)
+    registry = tcod.ecs.Registry()
+    social = SocialStateSystem(bus, registry)
+    
+    npc = registry.new_entity()
+    npc.components[EntityIdentity] = EntityIdentity(entity_id=1, name="NPC", archetype="NPC")
     
     # Target starts with 0 stress
     bus.emit(CombatEvent(
@@ -26,7 +36,11 @@ def test_stress_spike_on_damage():
 
 def test_stress_max_cap():
     bus = EventBus()
-    social = SocialStateSystem(bus)
+    registry = tcod.ecs.Registry()
+    social = SocialStateSystem(bus, registry)
+    
+    npc = registry.new_entity()
+    npc.components[EntityIdentity] = EntityIdentity(entity_id=1, name="NPC", archetype="NPC")
     
     bus.emit(CombatEvent(
         event_key=EVT_ON_DAMAGE,
@@ -39,7 +53,11 @@ def test_stress_max_cap():
 
 def test_stress_spike_on_death():
     bus = EventBus()
-    social = SocialStateSystem(bus)
+    registry = tcod.ecs.Registry()
+    social = SocialStateSystem(bus, registry)
+    
+    npc = registry.new_entity()
+    npc.components[EntityIdentity] = EntityIdentity(entity_id=1, name="NPC", archetype="NPC")
     
     bus.emit(CombatEvent(
         event_key=EVT_ON_DEATH,

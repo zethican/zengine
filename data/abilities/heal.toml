@@ -1,6 +1,12 @@
+# data/abilities/heal.toml
 id = "heal"
-name = "First Aid"
-ap_cost = 50
-damage_die = -6 # Negative indicates healing
-damage_bonus = -2
+name = "Rejuvenate"
+tags = ["magic", "holy", "healing"]
+ap_cost = 20
 target_type = "self"
+
+[[effects]]
+effect_type = "heal"
+target_pattern = "self"
+magnitude = "1d8 + @resolve_mod"
+tags = ["healing", "holy"]

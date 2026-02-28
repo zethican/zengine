@@ -1,0 +1,9 @@
+# data/items/affixes/gilded.toml
+id = "gilded"
+name = "Gilded"
+type = "prefix"
+eligible_tags = ["weapon", "armor", "jewelry"]
+weight = 8
+
+[item_stats]
+protection = 1

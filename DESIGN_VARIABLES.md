@@ -14,7 +14,7 @@
 
 ---
 
-## Inventory & Items (Phase 7)
+## Inventory & Items (Phase 7–9)
 
 | Variable                 | Value        | Type  | Notes                                                          |
 | ------------------------ | ------------ | ----- | -------------------------------------------------------------- |
@@ -22,6 +22,7 @@
 | `AP_COST_DROP`           | 10           | int   | AP cost to drop an item from inventory to the floor            |
 | `AP_COST_EQUIP`          | 20           | int   | AP cost to equip a carried item                                |
 | `AP_COST_CRAFT`          | 30           | int   | AP cost to combine two items                                   |
+| `AP_COST_USE`            | 20           | int   | AP cost to use a consumable item                               |
 
 ---
 
@@ -34,12 +35,12 @@
 
 ---
 
-## Combat Resolution (d20 System)
+## Combat Resolution (2d8 Bell Curve)
 
 | Variable                 | Value        | Type  | Notes                                                          |
 | ------------------------ | ------------ | ----- | -------------------------------------------------------------- |
-| `CRIT_THRESHOLD`         | 20           | int   | Natural d20 roll for critical hit                             |
-| `FUMBLE_THRESHOLD`       | 1            | int   | Natural d20 roll for fumble                                   |
+| `CRIT_THRESHOLD`         | 16           | int   | Natural 2d8 roll for critical hit (max)                        |
+| `FUMBLE_THRESHOLD`       | 2            | int   | Natural 2d8 roll for fumble (min)                              |
 | `BASE_HIT_DC`            | 10           | int   | Default defense class when no modifier provided               |
 | `COMBAT_ROLL_DISPLAY`    | "category"   | str   | "category" (fumble/miss/graze/hit/crit) OR "raw" (roll numbers) |
 
@@ -98,6 +99,12 @@
 
 ## Undocumented Parameters Encountered
 
-*(Log here as new values are discovered during implementation)*
-
-*(none yet)*
+| Variable                 | Value        | Type  | Notes                                                          |
+| ------------------------ | ------------ | ----- | -------------------------------------------------------------- |
+| `SOCIAL_AUTOPOP_COOLDOWN`| 2000         | int   | Ticks between NPC-initiated dialogue pop-ups                    |
+| `RARITY_MAGIC_CHANCE`    | 0.25         | float | Chance for an item to roll Magic tier (1 affix)                |
+| `RARITY_RARE_CHANCE`     | 0.05         | float | Chance for an item to roll Rare tier (2 affixes)               |
+| `SOCIAL_ENGAGEMENT_RANGE`| 3            | int   | Standard distance for NPC social approach                      |
+| `SOCIAL_PROACTIVE_RANGE` | 6            | int   | Social range for merchants or NPCs with rumors                 |
+| `MODIFIER_DEFAULT_DURATION`| 100        | int   | Default tick duration for unnamed modifiers                    |
+| `FACTION_CONDUCTION_FACTOR`| 0.5        | float | Percentage of reputation shift that propagates to parent faction|

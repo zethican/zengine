@@ -1,0 +1,38 @@
+# data/world/chunks/smithy_refuse.toml
+id = "smithy_refuse"
+name = "The Smithy's Refuse"
+description = "An abandoned workshop. A stone forge still stands in the main room, while the yard is choked with rusted metal and weathered timber."
+
+map = """
+................
+.##############.
+.#......#.....#.
+.#.FORGE#WATER#.
+.#......#~~~~~#.
+.####+#######+#.
+.#............#.
+.#....YARD....#.
+.#............#.
+.##############.
+................
+"""
+
+[[spawns]]
+type = "container"
+name = "Iron Scrap"
+lx = 12
+ly = 7
+items = ["materials/iron_ingot", "materials/iron_ingot"]
+
+[[spawns]]
+type = "container"
+name = "Toolbox"
+lx = 3
+ly = 3
+items = ["parts/wooden_hilt", "parts/iron_blade"]
+
+[[spawns]]
+type = "item"
+id = "materials/wooden_plank"
+lx = 8
+ly = 8

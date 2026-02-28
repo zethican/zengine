@@ -1,0 +1,17 @@
+# data/entities/wispvine.toml
+id = "wispvine"
+name = "Wispvine"
+hp = 12
+speed = 8.0
+archetype = "Ambusher"
+abilities = ["basic_attack"]
+
+[attributes]
+might = 8
+finesse = 16
+resolve = 12
+
+[tags]
+is_plant = true
+is_hostile = true
+faction = "PlantLife"

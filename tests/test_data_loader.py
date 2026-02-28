@@ -4,8 +4,10 @@ from engine.data_loader import get_ability_def, get_entity_def, get_starting_rum
 def test_load_basic_attack():
     ability = get_ability_def("basic_attack")
     assert ability.id == "basic_attack"
-    assert ability.damage_die == 6
-    assert ability.ap_cost == 50
+    assert len(ability.effects) > 0
+    assert ability.effects[0].effect_type == "damage"
+    assert "1d6" in ability.effects[0].magnitude
+    assert ability.ap_cost == 10
 
 def test_load_entity_hero():
     hero = get_entity_def("hero_standard")

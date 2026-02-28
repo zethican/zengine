@@ -1,0 +1,25 @@
+# data/population.toml
+
+[biomes.forest]
+entries = [
+    { id = "wispvine", weight = 70 },
+    { id = "foe_skirmisher", weight = 30 }
+]
+
+[biomes.marsh]
+entries = [
+    { id = "starfish", weight = 80 },
+    { id = "foe_skirmisher", weight = 20 }
+]
+
+[biomes.wasteland]
+entries = [
+    { id = "borzai", weight = 80 },
+    { id = "foe_skirmisher", weight = 20 }
+]
+
+[biomes.plains]
+entries = [
+    { id = "shimmer_cat", weight = 60 },
+    { id = "foe_skirmisher", weight = 40 }
+]

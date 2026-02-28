@@ -1,0 +1,10 @@
+# data/items/affixes/sharp.toml
+id = "sharp"
+name = "Sharp"
+type = "prefix"
+eligible_tags = ["weapon"]
+weight = 10
+
+[item_stats]
+attack_bonus = 2
+damage_bonus = 1

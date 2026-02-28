@@ -1,0 +1,19 @@
+# data/attributes.toml
+
+[[attributes]]
+id = "might"
+name = "Might"
+abbreviation = "MGT"
+description = "Raw physical power. Influences damage and physical resilience."
+
+[[attributes]]
+id = "finesse"
+name = "Finesse"
+abbreviation = "FIN"
+description = "Coordination and precision. Influences hit chance and evasion."
+
+[[attributes]]
+id = "resolve"
+name = "Resolve"
+abbreviation = "RES"
+description = "Mental fortitude. Influences stress resistance and social standing."

@@ -1,6 +1,12 @@
+# data/abilities/basic_attack.toml
 id = "basic_attack"
-name = "Basic Attack"
-ap_cost = 50
-damage_die = 6
-damage_bonus = 2
+name = "Strike"
+tags = ["melee", "physical"]
+ap_cost = 10
 target_type = "single"
+
+[[effects]]
+effect_type = "damage"
+target_pattern = "primary_target"
+magnitude = "1d6 + @might_mod"
+tags = ["physical", "impact"]

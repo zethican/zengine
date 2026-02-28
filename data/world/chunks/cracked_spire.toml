@@ -1,0 +1,36 @@
+# data/world/chunks/cracked_spire.toml
+id = "cracked_spire"
+name = "The Cracked Spire"
+description = "A massive stone tower, split down the middle by some ancient force. Stone rubble creates a treacherous maze within its shadow."
+
+map = """
+............
+....####....
+..##....##..
+.#...##...#.
+.#..####..#.
+.#..#..#..#.
+.##......##.
+..##....##..
+....####....
+............
+"""
+
+[[spawns]]
+type = "npc"
+id = "foe_skirmisher"
+lx = 5
+ly = 5
+
+[[spawns]]
+type = "npc"
+id = "foe_skirmisher"
+lx = 2
+ly = 3
+
+[[spawns]]
+type = "container"
+name = "Ancient Cache"
+lx = 5
+ly = 4
+items = ["parts/iron_blade", "consumables/healing_potion"]

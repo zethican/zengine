@@ -1,6 +1,20 @@
+# data/abilities/heavy_blow.toml
 id = "heavy_blow"
 name = "Heavy Blow"
-ap_cost = 75
-damage_die = 10
-damage_bonus = 4
+tags = ["melee", "physical", "strong"]
+ap_cost = 30
 target_type = "single"
+
+[[effects]]
+effect_type = "damage"
+target_pattern = "primary_target"
+magnitude = "2d6 + @might_mod"
+tags = ["physical", "crushing"]
+
+[[effects]]
+effect_type = "apply_modifier"
+target_pattern = "primary_target"
+modifier_id = "sunder"
+magnitude = "-2"
+duration = 3
+tags = ["debuff", "physical"]

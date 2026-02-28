@@ -2,22 +2,120 @@
 ZEngine — world/generator.py
 Procedural Generation: Chunk-based open world with dynamic PoL resolution.
 ==========================================================================
-Version:     0.1  (Phase 2 — canonical implementation)
+Version:     0.2  (Phase 11 Step 3 — Bespoke Chunks)
 Stack:       Python 3.14.3 | NumPy (limited)
-Status:      Production-ready for Phase 2.
-
-Architecture notes
-------------------
-- Lazy-loaded chunking (20x20 tiles).
-- Deterministic RNG based on chunk coordinates and world seed.
-- Rumor Layer: Pending Points of Light (PoLs) resolve on entry.
-- PoL Hierarchy: Significance -> Biome -> Rarity.
+Status:      Production-ready for Phase 11.
 """
 
 from __future__ import annotations
 import random
+import tcod.noise
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Any
+from engine.data_loader import get_biome_defs, BiomeDef, get_module_defs, ModuleDef
+
+class SettlementPlanner:
+    """
+    Assembles settlements from modular components.
+    """
+    def __init__(self, seed: int):
+        self.rng = random.Random(seed)
+        self.modules = get_module_defs()
+
+    def plan_settlement(self, theme: str, chunk_size: int = 20) -> List[Tuple[ModuleDef, int, int]]:
+        """
+        Returns a list of (ModuleDef, x, y) placements for a settlement.
+        """
+        placements = []
+        
+        # 1. Select and place Heart
+        # For now, we only have one heart 'tavern_heart'
+        heart = self.modules.get("tavern_heart")
+        if not heart: return []
+        
+        # Center-ish placement
+        h_lines = heart.map.strip().split("\n")
+        hw, hh = len(h_lines[0]), len(h_lines)
+        hx = (chunk_size - hw) // 2
+        hy = (chunk_size - hh) // 2
+        placements.append((heart, hx, hy))
+        
+        # 2. Select and place Limbs (1-2)
+        limb_ids = ["small_room", "garden_unit"]
+        limb_count = self.rng.randint(1, 2)
+        
+        for _ in range(limb_count):
+            lid = self.rng.choice(limb_ids)
+            limb = self.modules.get(lid)
+            if not limb: continue
+            
+            l_lines = limb.map.strip().split("\n")
+            lw, lh = len(l_lines[0]), len(l_lines)
+            
+            # Try 10 times to find a non-overlapping spot near the heart
+            for _ in range(10):
+                # Jitter around heart
+                nx = hx + self.rng.randint(-5, 5)
+                ny = hy + self.rng.randint(-5, 5)
+                
+                # Bounding box check
+                if 0 <= nx < chunk_size - lw and 0 <= ny < chunk_size - lh:
+                    # Overlap check
+                    overlap = False
+                    for p_mod, px, py in placements:
+                        p_lines = p_mod.map.strip().split("\n")
+                        pw, ph = len(p_lines[0]), len(p_lines)
+                        if self._rects_overlap(nx, ny, lw, lh, px, py, pw, ph):
+                            overlap = True
+                            break
+                    
+                    if not overlap:
+                        placements.append((limb, nx, ny))
+                        break
+                        
+        return placements
+
+    def _rects_overlap(self, x1, y1, w1, h1, x2, y2, w2, h2) -> bool:
+        return not (x1 + w1 <= x2 or x2 + w2 <= x1 or y1 + h1 <= y2 or y2 + h2 <= y1)
+
+class WorldBiomeEngine:
+    """
+    Uses global Simplex noise to determine regional biomes.
+    """
+    def __init__(self, seed: int):
+        # Temperature Noise (Low frequency for broad regions)
+        self.temp_noise = tcod.noise.Noise(
+            dimensions=2,
+            algorithm=tcod.noise.Algorithm.SIMPLEX,
+            seed=seed
+        )
+        # Humidity Noise
+        self.hum_noise = tcod.noise.Noise(
+            dimensions=2,
+            algorithm=tcod.noise.Algorithm.SIMPLEX,
+            seed=seed + 12345
+        )
+        self.biomes = get_biome_defs()
+
+    def get_biome(self, chunk_x: int, chunk_y: int) -> BiomeDef:
+        """Determines the biome for a given chunk coordinate."""
+        # Scale noise: broad regions span approx 20 chunks
+        scale = 0.05
+        t_val = (self.temp_noise.get_point(chunk_x * scale, chunk_y * scale) + 1.0) / 2.0
+        h_val = (self.hum_noise.get_point(chunk_x * scale, chunk_y * scale) + 1.0) / 2.0
+        
+        # 1. Direct Range Matches
+        for b in self.biomes:
+            if b.id == "plains": continue # Default
+            if (b.temp_range[0] <= t_val <= b.temp_range[1] and 
+                b.hum_range[0] <= h_val <= b.hum_range[1]):
+                return b
+                
+        # 2. Fallback to Plains
+        for b in self.biomes:
+            if b.id == "plains": return b
+            
+        return self.biomes[0] # Total fallback
 
 @dataclass(frozen=True)
 class ChunkKey:
@@ -171,10 +269,24 @@ class ChunkManager:
         self.chunk_size = chunk_size
         self.generated_chunks: Dict[ChunkKey, Dict[str, Any]] = {}
         self.rumor_queue: List[Rumor] = []
+        self.bespoke_templates = [
+            "cracked_spire", "wayfarers_hearth", "lithic_circle", 
+            "smithy_refuse", "hermits_root", "hunters_lean_to"
+        ]
+        self.biome_engine = WorldBiomeEngine(world_seed)
+        self.planner = SettlementPlanner(world_seed)
 
     def add_rumor(self, rumor: Rumor):
         """Add a pending point of light to the resolution queue."""
         self.rumor_queue.append(rumor)
+
+    def get_next_rumor(self) -> Optional[Rumor]:
+        """Pops the next available rumor from the queue."""
+        if not self.rumor_queue:
+            return None
+        # Sort by significance
+        self.rumor_queue.sort(key=lambda r: r.significance, reverse=True)
+        return self.rumor_queue.pop(0)
 
     def get_chunk(self, chunk_x: int, chunk_y: int) -> Dict[str, Any]:
         """Retrieve or generate a chunk at the given coordinates."""
@@ -187,27 +299,139 @@ class ChunkManager:
         """
         Deterministic generation logic.
         Resolves rumors if conditions are met.
+        Implements Regional Blueprint (Checkerboard Bespoke Content).
         """
         # Create a deterministic seed for this specific chunk
         chunk_seed = hash((x, y, self.world_seed))
         rng = random.Random(chunk_seed)
         
+        # Fetch Biome
+        biome = self.biome_engine.get_biome(x, y)
+        
+        # Fetch Population
+        from engine.data_loader import get_population_defs
+        pop_defs = get_population_defs()
+        biome_pop = pop_defs.biomes.get(biome.id, {}).get("entries", [])
+        
         chunk_data = {
             "coords": (x, y),
+            "biome": biome,
+            "population": biome_pop,
             "pol": None,
-            "terrain": "wilderness"
+            "terrain": "wilderness",
+            "faction_id": f"warband_{x}_{y}",
+            "is_spawned": False
         }
         
-        # Resolve rumors
-        # Logic: 10% chance to resolve a rumor if one is pending
+        # 1. Regional Blueprint (Points of Light)
+        # Determine if this chunk is a POI based on region grid (4x4 chunks)
+        region_x = x // 4
+        region_y = y // 4
+        
+        region_rng = random.Random(hash((region_x, region_y, self.world_seed)))
+        poi_count = region_rng.randint(1, 2)
+        poi_chunks = []
+        for _ in range(poi_count):
+            lx = region_rng.randint(0, 3)
+            ly = region_rng.randint(0, 3)
+            poi_chunks.append((region_x * 4 + lx, region_y * 4 + ly))
+            
+        if (x, y) in poi_chunks:
+            chunk_data["terrain"] = "bespoke"
+            # Regional anchor for consistent faction_id across settlement
+            anchor_x, anchor_y = poi_chunks[0]
+            chunk_data["faction_id"] = f"village_{anchor_x}_{anchor_y}"
+            
+            # Use SettlementPlanner to grow the area
+            planned_modules = self.planner.plan_settlement("village", self.chunk_size)
+            
+            bespoke_tiles = {}
+            spawns = []
+            roads = []
+            
+            mid = self.chunk_size // 2
+            
+            for mdef, mx, my in planned_modules:
+                m_lines = mdef.map.strip().split("\n")
+                
+                # Stamp tiles
+                door_lx, door_ly = -1, -1
+                for ly, line in enumerate(m_lines):
+                    for lx, char in enumerate(line):
+                        tx, ty = mx + lx, my + ly
+                        
+                        ttype = "floor"
+                        if char == "#": ttype = "wall"
+                        elif char == "~": ttype = "water"
+                        elif char == "+":
+                            ttype = "floor"
+                            door_lx, door_ly = tx, ty
+                            spawns.append({"type": "door", "lx": tx, "ly": ty})
+                        
+                        bespoke_tiles[(tx, ty)] = ttype
+                
+                # Add spawns from module
+                for sdef in mdef.spawns:
+                    s_copy = sdef.copy()
+                    s_copy["lx"] += mx
+                    s_copy["ly"] += my
+                    spawns.append(s_copy)
+                    
+                # Stitch: Road from Door to Center
+                if door_lx != -1:
+                    # Simple L-path to center (mid, mid)
+                    curr_x, curr_y = door_lx, door_ly
+                    # 1. Horizontal to mid
+                    step = 1 if mid > curr_x else -1
+                    for rx in range(curr_x, mid + step, step):
+                        roads.append((rx, curr_y))
+                    # 2. Vertical to mid
+                    step = 1 if mid > curr_y else -1
+                    for ry in range(curr_y, mid + step, step):
+                        roads.append((mid, ry))
+
+            chunk_data["bespoke_tiles"] = bespoke_tiles
+            chunk_data["spawns"] = spawns
+            chunk_data["roads"] = roads
+            return chunk_data
+
+        # 2. Road Connectivity (Visual Breadcrumbs)
+        # If adjacent to a POI chunk, 50% chance of a road cutting through center
+        chunk_data["roads"] = [] # List of (lx, ly)
+        
+        # Check Neighbors
+        for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]:
+            nx, ny = x + dx, y + dy
+            # We need to know if (nx, ny) IS a POI chunk without generating it
+            # We repeat the regional logic for the neighbor
+            rn_x, rn_y = nx // 4, ny // 4
+            rn_rng = random.Random(hash((rn_x, rn_y, self.world_seed)))
+            pn_count = rn_rng.randint(1, 2)
+            pn_chunks = []
+            for _ in range(pn_count):
+                lnx = rn_rng.randint(0, 3)
+                lny = rn_rng.randint(0, 3)
+                pn_chunks.append((rn_x * 4 + lnx, rn_y * 4 + lny))
+            
+            if (nx, ny) in pn_chunks and rng.random() < 0.5:
+                # Add a road path from center to the edge of the neighbor
+                mid = self.chunk_size // 2
+                if dx == -1: # West
+                    for lx in range(0, mid + 1): chunk_data["roads"].append((lx, mid))
+                elif dx == 1: # East
+                    for lx in range(mid, self.chunk_size): chunk_data["roads"].append((lx, mid))
+                elif dy == -1: # North
+                    for ly in range(0, mid + 1): chunk_data["roads"].append((mid, ly))
+                elif dy == 1: # South
+                    for ly in range(mid, self.chunk_size): chunk_data["roads"].append((mid, ly))
+
+        # 3. Resolve rumors (for odd chunks or rare overrides)
         if self.rumor_queue and rng.random() < 0.1:
-            # Simple priority: Significance -> First in queue
             self.rumor_queue.sort(key=lambda r: r.significance, reverse=True)
             resolved = self.rumor_queue.pop(0)
             chunk_data["pol"] = resolved
             chunk_data["terrain"] = f"structured_{resolved.pol_type}"
             
-            # Phase 3 stub wiring
             if resolved.pol_type == "dungeon":
                 dungeon_gen = BSPDungeonGenerator(width=40, height=40, seed=chunk_seed)
                 chunk_data["dungeon_layout"] = dungeon_gen.generate()
@@ -215,7 +439,7 @@ class ChunkManager:
         return chunk_data
 
     def get_tile(self, global_x: int, global_y: int) -> str:
-        """Returns the specific string terrain type ('wall', 'floor', 'grass', 'tree') for a given coordinate."""
+        """Returns the specific string terrain type for a given coordinate."""
         chunk_x = global_x // self.chunk_size
         chunk_y = global_y // self.chunk_size
         chunk = self.get_chunk(chunk_x, chunk_y)
@@ -224,48 +448,30 @@ class ChunkManager:
         local_x = global_x % self.chunk_size
         local_y = global_y % self.chunk_size
         
+        # Priority 1: Bespoke Tiles (Handcrafted)
+        if chunk["terrain"] == "bespoke":
+            bespoke = chunk.get("bespoke_tiles", {})
+            if (local_x, local_y) in bespoke:
+                return bespoke[(local_x, local_y)]
+        
+        # Priority 2: Dungeon Tiles
         if "dungeon_layout" in chunk:
             tiles = chunk["dungeon_layout"]["tiles"]
-            # To handle 40x40 dungeon in 20x20 chunks gracefully for MVP, 
-            # we just modulo the dimensions if they mismatch, or bounds check.
             if 0 <= local_y < len(tiles) and 0 <= local_x < len(tiles[0]):
                 return tiles[local_y][local_x]
                 
-        if chunk["terrain"] == "wilderness":
-            # Procedural deterministic noise for wilderness
-            rng = random.Random(hash((global_x, global_y, self.world_seed)))
-            return rng.choice(["grass", "grass", "grass", "grass", "grass", "tree"])
+        # Priority 3: Roads
+        if (local_x, local_y) in chunk.get("roads", []):
+            return "floor" # Road is just a path
             
-        return chunk["terrain"]
-
-# ============================================================
-# SMOKE TEST
-# ============================================================
-
-if __name__ == "__main__":
-    print("--- World Generator Smoke Test ---")
-    manager = ChunkManager(world_seed=12345)
-    
-    # Add some rumors
-    manager.add_rumor(Rumor("r1", "Obsidian Keep", "dungeon", significance=5))
-    manager.add_rumor(Rumor("r2", "Old Shrine", "prefab", significance=3))
-    
-    print(f"Pending Rumors: {len(manager.rumor_queue)}")
-    
-    # "Explore" a few chunks
-    for cx in range(5):
-        for cy in range(5):
-            chunk = manager.get_chunk(cx, cy)
-            if chunk["pol"]:
-                print(f"Resolved PoL at ({cx}, {cy}): {chunk['pol'].name} ({chunk['pol'].pol_type})")
-                
-    print(f"Pending Rumors remaining: {len(manager.rumor_queue)}")
-    
-    # Test consistency
-    c1 = manager.get_chunk(0, 0)
-    # Clear cache and regenerate
-    manager.generated_chunks.clear()
-    c2 = manager.get_chunk(0, 0)
-    
-    assert c1["terrain"] == c2["terrain"]
-    print("✅ Generation consistency verified.")
+        # Priority 4: Biome-driven Procedural Wilderness
+        biome = chunk["biome"]
+        rng = random.Random(hash((global_x, global_y, self.world_seed)))
+        roll = rng.random()
+        
+        if roll < biome.water_density: return "water"
+        if roll < (biome.water_density + biome.tree_density): return "tree"
+        if roll < (biome.water_density + biome.tree_density + biome.rubble_density): return "wall" # Rubble as wall
+        if roll < (biome.water_density + biome.tree_density + biome.rubble_density + biome.grass_density): return "grass"
+        
+        return "floor" # Dirt/Floor fallback

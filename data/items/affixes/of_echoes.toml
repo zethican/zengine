@@ -1,0 +1,13 @@
+# data/items/affixes/of_echoes.toml
+id = "of_echoes"
+name = "of Echoes"
+type = "suffix"
+eligible_tags = ["weapon", "armor"]
+weight = 5
+
+[[modifiers]]
+id = "sunder"
+name = "Sunder"
+stat_field = "protection"
+magnitude = -2.0
+duration = 5

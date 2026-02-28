@@ -194,8 +194,9 @@ def test_ability_data_expansion():
         # Position is important for cleave (adjacent_all)
         hero.components[Position] = Position(x=10, y=10)
         hero.components[CombatVitals] = CombatVitals(hp=15, max_hp=30) # Start damaged to test heal
-        hero.components[CombatStats] = CombatStats(attack_bonus=10, damage_bonus=2)
+        hero.components[CombatStats] = CombatStats(attack_bonus=100, damage_bonus=2) # Massive bonus to guarantee hit
         hero.components[ActionEconomy] = ActionEconomy()
+
         hero.components[MovementStats] = MovementStats(speed=10.0)
         
         # Foes
@@ -225,7 +226,11 @@ def test_ability_data_expansion():
         # 2. Test Cleave
         # Give more AP for the second move
         hero.components[ActionEconomy].ap_pool = 100
-        sim.invoke_ability_ecs(hero, "cleave", None) # Target is implicitly adjacent_all
+        
+        # Mock resolve_roll to guarantee hits
+        from unittest.mock import patch
+        with patch('engine.loop.resolve_roll', return_value={"total": 100, "is_crit": False, "is_fumble": False, "rolls": [10, 10]}):
+            sim.invoke_ability_ecs(hero, "cleave", None) # Target is implicitly adjacent_all
         
         # Foes 1 and 2 should take damage. Foe 3 should not.
         assert foe1.components[CombatVitals].hp < 10

@@ -1,19 +1,125 @@
 [world]
 era = "Recent"
 cycle = 1
-tick = 31
+tick = 80
 world_seed = 10101
+
+[faction_standing]
+
+[[entities]]
+id = shimmer_cat
+name = "Shimmer Cat"
+archetype = "Apex Predator"
+is_player = false
+template_origin = "entities/shimmer_cat"
+x = -31
+y = 4
+terrain = "floor"
+hp = 18
+max_hp = 18
+[entities.attributes]
+might = 12
+finesse = 18
+resolve = 14
+
 
 [[entities]]
 id = 1
-name = "Standard Hero"
+name = "Player"
 archetype = "Standard"
 is_player = true
-x = -16
-y = 4
+x = -52
+y = 11
+terrain = "grass"
 hp = 30
 max_hp = 30
-attack_bonus = 5
-damage_bonus = 2
-defense_bonus = 0
-speed = 10.0
+[entities.attributes]
+might = 12
+finesse = 12
+resolve = 10
+
+
+[[entities]]
+id = shimmer_cat
+name = "Shimmer Cat"
+archetype = "Apex Predator"
+is_player = false
+template_origin = "entities/shimmer_cat"
+x = -23
+y = -8
+terrain = "grass"
+hp = 18
+max_hp = 18
+[entities.attributes]
+might = 12
+finesse = 18
+resolve = 14
+
+
+[[entities]]
+id = shimmer_cat
+name = "Shimmer Cat"
+archetype = "Apex Predator"
+is_player = false
+template_origin = "entities/shimmer_cat"
+x = -31
+y = -19
+terrain = "tree"
+hp = 18
+max_hp = 18
+[entities.attributes]
+might = 12
+finesse = 18
+resolve = 14
+
+
+[[entities]]
+id = shimmer_cat
+name = "Shimmer Cat"
+archetype = "Apex Predator"
+is_player = false
+template_origin = "entities/shimmer_cat"
+x = -25
+y = -19
+terrain = "floor"
+hp = 18
+max_hp = 18
+[entities.attributes]
+might = 12
+finesse = 18
+resolve = 14
+
+
+[[entities]]
+id = shimmer_cat
+name = "Shimmer Cat"
+archetype = "Apex Predator"
+is_player = false
+template_origin = "entities/shimmer_cat"
+x = -44
+y = 5
+terrain = "floor"
+hp = 18
+max_hp = 18
+[entities.attributes]
+might = 12
+finesse = 18
+resolve = 14
+
+
+[[entities]]
+id = shimmer_cat
+name = "Shimmer Cat"
+archetype = "Apex Predator"
+is_player = false
+template_origin = "entities/shimmer_cat"
+x = -27
+y = -19
+terrain = "grass"
+hp = 18
+max_hp = 18
+[entities.attributes]
+might = 12
+finesse = 18
+resolve = 14
+

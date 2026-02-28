@@ -1,0 +1,16 @@
+# data/world/modules/garden_unit.toml
+id = "garden_unit"
+name = "Vegetable Patch"
+map = """
+.....
+.~~..
+.~~..
+.....
+.....
+"""
+
+[[spawns]]
+type = "item"
+id = "materials/wooden_plank"
+lx = 1
+ly = 4

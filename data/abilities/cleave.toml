@@ -1,6 +1,12 @@
+# data/abilities/cleave.toml
 id = "cleave"
-name = "Wide Cleave"
-ap_cost = 60
-damage_die = 6
-damage_bonus = 1
-target_type = "adjacent_all"
+name = "Cleave"
+tags = ["melee", "physical", "area"]
+ap_cost = 20
+target_type = "self"
+
+[[effects]]
+effect_type = "damage"
+target_pattern = "adjacent_all"
+magnitude = "1d4 + @might_mod"
+tags = ["physical", "sweep"]

@@ -57,6 +57,7 @@ class ItemIdentity:
     name: str
     description: str
     template_origin: Optional[str] = None
+    value: int = 10
 
 @dataclass
 class Quantity:
@@ -72,6 +73,7 @@ class ItemStats:
     attack_bonus: int = 0
     damage_bonus: int = 0
     protection: int = 0
+    modifiers: List[Dict[str, Any]] = field(default_factory=list)
 
 @dataclass
 class Anatomy:
@@ -81,3 +83,79 @@ class Anatomy:
 class Lineage:
     parent_ids: List[str] = field(default_factory=list)
     inherited_tags: List[str] = field(default_factory=list)
+
+@dataclass
+class Usable:
+    ability_id: str
+    consumes: bool = True
+
+@dataclass
+class Disposition:
+    reputation: float = 0.0
+    moral_weight: float = 0.5
+    resilience: float = 1.0
+    baseline_mood: str = "neutral"
+    last_gift_tick: int = -1000
+
+@dataclass
+class Stress:
+    stress_level: float = 0.0
+    exodus_risk: float = 0.0
+
+@dataclass
+class BehaviorProfile:
+    threat_weight: float = 1.0   # Positive = repulse, Negative = attract
+    affinity_weight: float = 0.0 # Positive = attract
+    urgency_weight: float = 0.0  # Positive = attract to safety/items
+
+@dataclass
+class PendingAction:
+    action_type: str
+    target_entity: Optional[tcod.ecs.Entity] = None
+    payload: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class Attributes:
+    scores: Dict[str, int] = field(default_factory=dict)
+
+@dataclass
+class Interactable:
+    verb: str = "interact" # "open", "search", "talk"
+    action_type: str = "default"
+
+@dataclass
+class DoorState:
+    is_open: bool = False
+    is_locked: bool = False
+
+@dataclass
+class BlocksMovement:
+    pass
+
+@dataclass
+class DialogueProfile:
+    greetings: Dict[str, str] = field(default_factory=dict) # "friendly", "hostile", "neutral"
+    rumor_response: str = "I heard something about..."
+
+@dataclass
+class Faction:
+    faction_id: str
+
+@dataclass
+class SocialAwareness:
+    engagement_range: int = 3
+    last_interaction_tick: int = -2000
+    is_proactive: bool = False # For Rumor/Trade carriers
+
+@dataclass
+class Modifier:
+    id: str
+    name: str
+    stat_field: str # e.g., "attack_bonus", "protection", "speed"
+    magnitude: float
+    duration: int # ticks remaining
+    source_entity_id: Optional[int] = None
+
+@dataclass
+class ActiveModifiers:
+    effects: List[Modifier] = field(default_factory=list)

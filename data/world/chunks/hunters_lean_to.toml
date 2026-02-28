@@ -1,0 +1,36 @@
+# data/world/chunks/hunters_lean_to.toml
+id = "hunters_lean_to"
+name = "The Hunter's Lean-to"
+description = "A simple slanted roof of cedar planks, open to the south. A ring of stones marks a cold fire-pit, and a stack of firewood sits nearby."
+
+map = """
+............
+.##########.
+.#........#.
+.#........#.
+.#........#.
+............
+............
+..##..##....
+..##..##....
+............
+"""
+
+[[spawns]]
+type = "npc"
+id = "foe_skirmisher"
+lx = 10
+ly = 6
+
+[[spawns]]
+type = "container"
+name = "Discarded Rucksack"
+lx = 3
+ly = 3
+items = ["consumables/healing_potion", "materials/wooden_plank"]
+
+[[spawns]]
+type = "item"
+id = "weapons/iron_sword"
+lx = 8
+ly = 2

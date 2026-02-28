@@ -1,0 +1,29 @@
+# data/world/chunks/hermits_root.toml
+id = "hermits_root"
+name = "The Hermit's Root"
+description = "A humble dwelling protected by a moat of dark water and the sprawling roots of a sentinel tree."
+
+map = """
+..............
+....~~~~~~....
+..~~######~~..
+..~#......#~..
+..~#......#~..
+..~##.++.##~..
+....~~~~~~....
+..............
+"""
+
+[[spawns]]
+type = "npc"
+id = "hero_standard" # Placeholder for Friendly
+name = "The Hermit"
+lx = 6
+ly = 3
+
+[[spawns]]
+type = "container"
+name = "Garden Cache"
+lx = 10
+ly = 3
+items = ["consumables/healing_potion"]

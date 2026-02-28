@@ -1,0 +1,19 @@
+# data/world/modules/tavern_heart.toml
+id = "tavern_heart"
+name = "Hearth Common Room"
+map = """
+########
+#......#
+#..BAR.#
+#......#
+#......#
+#......#
+####+###
+"""
+
+[[spawns]]
+type = "npc"
+id = "hero_standard"
+name = "Innkeeper"
+lx = 3
+ly = 2

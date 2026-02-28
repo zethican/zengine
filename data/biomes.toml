@@ -1,0 +1,44 @@
+# data/biomes.toml
+
+[[biomes]]
+id = "forest"
+name = "Gnarled Forest"
+description = "A dense canopy of ancient, twisted trees. The air is cool and damp."
+temp_range = [0.3, 0.7]
+hum_range = [0.6, 1.0]
+tree_density = 0.4
+grass_density = 0.8
+colors = { grass = [30, 80, 30], tree = [10, 60, 10] }
+
+[[biomes]]
+id = "marsh"
+name = "Salt Marshes"
+description = "Brackish water and tall reeds as far as the eye can see."
+temp_range = [0.4, 0.8]
+hum_range = [0.8, 1.0]
+water_density = 0.3
+grass_density = 0.6
+colors = { grass = [60, 70, 40], water = [20, 40, 50] }
+
+[[biomes]]
+id = "wasteland"
+name = "Ash Wastes"
+description = "Desolate plains of grey dust and shattered industry."
+temp_range = [0.7, 1.0]
+hum_range = [0.0, 0.3]
+rubble_density = 0.2
+grass_density = 0.1
+colors = { grass = [80, 80, 80], rubble = [50, 50, 50] }
+ambient_modifiers = [
+    { id = "env_bleakness", name = "Bleakness", stat_field = "resolve", magnitude = -2.0, duration = 1 }
+]
+
+[[biomes]]
+id = "plains"
+name = "Wind-swept Plains"
+description = "Rolling hills of golden grass."
+temp_range = [0.0, 1.0]
+hum_range = [0.0, 1.0]
+grass_density = 0.9
+tree_density = 0.05
+colors = { grass = [140, 140, 40], tree = [80, 100, 20] }

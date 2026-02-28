@@ -1,0 +1,30 @@
+# data/world/chunks/lithic_circle.toml
+id = "lithic_circle"
+name = "The Lithic Circle"
+description = "A ring of massive, jagged menhirs. The ground at the center is smooth and cold, marked by a simple altar of grey slate."
+
+map = """
+..............
+....##..##....
+..##......##..
+..#........#..
+..#...##...#..
+..#...##...#..
+..#........#..
+..##......##..
+....##..##....
+..............
+"""
+
+[[spawns]]
+type = "container"
+name = "Votive Offering"
+lx = 6
+ly = 4
+items = ["consumables/healing_potion", "materials/iron_ingot"]
+
+[[spawns]]
+type = "item"
+id = "parts/wooden_hilt"
+lx = 2
+ly = 3

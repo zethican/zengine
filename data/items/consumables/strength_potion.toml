@@ -1,0 +1,15 @@
+# data/items/consumables/strength_potion.toml
+id = "strength_potion"
+name = "Vial of Raw Might"
+description = "Surges with power. (+5 Might for 1000 ticks)"
+value = 50
+
+[usable]
+ability_id = "heal"
+consumes = true
+
+[[modifiers]]
+id = "buff_might"
+stat_field = "might"
+magnitude = 5.0
+duration = 1000
