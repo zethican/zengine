@@ -38,8 +38,9 @@ def test_full_encounter_loop():
         
         sim.open_session()
         
-        # 2. Explore: Move entity into a new chunk.
-        sim.move_entity_ecs(hero, dx=20, dy=0)
+        # 2. Explore: Force move entity into a new chunk (bypass wall colliders for the jump).
+        hero.components[Position].x = 20
+        hero.components[Position].terrain_type = sim.world.get_tile(20, 0)
         assert hero.components[Position].x == 20
         # If it triggers Rumor resolution, terrain will be structured_dungeon
         # (Though it's a 10% chance so not guaranteed, we just assert it doesn't crash)
@@ -49,9 +50,9 @@ def test_full_encounter_loop():
             sim.tick()
         
         # 3. Combat: Trigger an attack action.
-        sim.resolve_attack_ecs(hero, foe)
+        sim.invoke_ability_ecs(hero, "basic_attack", foe)
         
-        # Foe likely tool damage.
+        # Foe likely took damage.
         foe_vitals = foe.components[CombatVitals]
         # Depending on roll, foe might be damaged (95% chance to hit DC 8 with +5 bonus)
         
@@ -179,3 +180,60 @@ def test_session_save_and_resume():
         assert vitals.hp == 30
         
         sim2.close_session()
+
+
+def test_ability_data_expansion():
+    """Verify routing and exact behaviors of expanded abilities defined in TOML."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        chronicle_path = Path(tmpdir) / "chronicle.jsonl"
+        sim = SimulationLoop(chronicle_path=chronicle_path)
+        
+        hero = sim.registry.new_entity()
+        from engine.ecs.components import EntityIdentity, Position, CombatVitals, CombatStats, ActionEconomy, MovementStats
+        hero.components[EntityIdentity] = EntityIdentity(entity_id=1, name="Aric", archetype="Standard", is_player=True)
+        # Position is important for cleave (adjacent_all)
+        hero.components[Position] = Position(x=10, y=10)
+        hero.components[CombatVitals] = CombatVitals(hp=15, max_hp=30) # Start damaged to test heal
+        hero.components[CombatStats] = CombatStats(attack_bonus=10, damage_bonus=2)
+        hero.components[ActionEconomy] = ActionEconomy()
+        hero.components[MovementStats] = MovementStats(speed=10.0)
+        
+        # Foes
+        foe1 = sim.registry.new_entity()
+        foe1.components[Position] = Position(x=11, y=10) # Distance 1
+        foe1.components[CombatVitals] = CombatVitals(hp=10, max_hp=10)
+        foe1.components[CombatStats] = CombatStats(defense_bonus=-5) # Easy to hit
+        
+        foe2 = sim.registry.new_entity()
+        foe2.components[Position] = Position(x=10, y=11) # Distance 1
+        foe2.components[CombatVitals] = CombatVitals(hp=10, max_hp=10)
+        foe2.components[CombatStats] = CombatStats(defense_bonus=-5) # Easy to hit
+        
+        foe3 = sim.registry.new_entity()
+        foe3.components[Position] = Position(x=12, y=10) # Distance 2 (should not be hit by cleave)
+        foe3.components[CombatVitals] = CombatVitals(hp=10, max_hp=10)
+        foe3.components[CombatStats] = CombatStats(defense_bonus=-5)
+        
+        sim.open_session()
+        
+        # 1. Test Heal
+        # Heal AP cost is 50, HP starts at 15
+        sim.invoke_ability_ecs(hero, "heal", hero)
+        hero_vitals = hero.components[CombatVitals]
+        assert hero_vitals.hp > 15 # Should have been healed
+        
+        # 2. Test Cleave
+        # Give more AP for the second move
+        hero.components[ActionEconomy].ap_pool = 100
+        sim.invoke_ability_ecs(hero, "cleave", None) # Target is implicitly adjacent_all
+        
+        # Foes 1 and 2 should take damage. Foe 3 should not.
+        assert foe1.components[CombatVitals].hp < 10
+        assert foe2.components[CombatVitals].hp < 10
+        assert foe3.components[CombatVitals].hp == 10
+        
+        # 3. Test single target failure on missing target
+        hero.components[ActionEconomy].ap_pool = 100
+        sim.invoke_ability_ecs(hero, "heavy_blow", None) # target_type is 'single', but no target provided
+        
+        sim.close_session()

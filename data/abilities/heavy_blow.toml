@@ -1,0 +1,6 @@
+id = "heavy_blow"
+name = "Heavy Blow"
+ap_cost = 75
+damage_die = 10
+damage_bonus = 4
+target_type = "single"

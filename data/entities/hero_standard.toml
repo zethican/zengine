@@ -3,4 +3,4 @@ name = "Standard Hero"
 hp = 30
 speed = 10.0
 archetype = "Standard"
-abilities = ["basic_attack"]
+abilities = ["basic_attack", "heavy_blow", "heal", "cleave"]

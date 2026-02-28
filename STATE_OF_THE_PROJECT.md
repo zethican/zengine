@@ -8,10 +8,10 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 5 (TBD / Post-MVP)      | Phase 4 Content & Polish complete and verified               |
-| **Phase 4 Status**      | ✅ IMPLEMENTED           | JIT TOML definitions and Context Collapsing Sessions built   |
-| **Next Immediate Task** | Review Next Phase       | Awaiting user direction on Phase 5 or feature requests       |
-| **Active Agent**        | Ready                   | Phase 4 complete                                             |
+| **Current Phase**       | 7 (Inventory/Items)     | Phase 6 Interactive UI complete and verified                 |
+| **Phase 6 Status**      | ✅ IMPLEMENTED           | TCOD state machine wired to core ECS; standalone .exe built  |
+| **Next Immediate Task** | Review Next Phase       | Awaiting user direction on Phase 7 (likely Inventory)        |
+| **Active Agent**        | Ready                   | Phase 6 complete                                             |
 
 ---
 
@@ -47,14 +47,16 @@
 
 ### Phase 2 Implementation Gate
 
-**Status:** ✅ COMPLETE — moving to Post-MVP / TBD
+**Status:** ✅ COMPLETE — moving to Phase 7 Inventory/Items
 
-**Completed in Phase 4 Content & Polish:**
-- JIT TOML parsing loader using Pydantic
-- Session context collapsing (saving/resuming state without ephemeral noise)
+**Completed in Phase 6 Interactive UI:**
+- Implemented `tcod` event loop.
+- Architected Screen State Machine (`MainMenuState`, `ExplorationState`, `InventoryState`).
+- Wired input bindings (Escape to Menu, 'i' to Inventory).
+- Shipped `build_exe.py` PyInstaller configuration wrapper.
 
-**Next Steps (Phase 5/TBD):**
-- Awaiting next target directive from user.
+**Next Steps (Phase 7+):**
+- Awaiting next target directive from user (likely bridging Inventory ECS Components).
 
 ---
 
@@ -159,10 +161,11 @@
 - [x] world/generator.py — procedural dungeon/wilderness generation (BSP) ✅
 - [x] Encounter density driver (legacy actor spawning) ✅
 
-### Phase 4+ (Completed)
+### Phase 6+ (Completed)
 
-- [x] data/ directory (abilities, grammar, templates, chronicle significance) ✅
-- [x] Sessions management (chronicle.jsonl, spatial_snapshot.toml) ✅
+- [x] UI System State Machine (MainMenu, Exploration, Inventory) ✅
+- [x] Native Python interactive play session ✅
+- [x] Portable Standalone Executable Pipeline (`build_exe.py`) ✅
 
 ---
 
@@ -200,5 +203,7 @@ See `FUTURE.md` for full list. Key items:
 | 2026-02-27 (Phase 2 end)    | Phase 2 Integration complete. Full simulation loop written in `engine/loop.py`. Automated end-to-end smoke test passes. `BSPDungeonGenerator` stub added. Now Phase 3.    | Phase 2 Integration close-out |
 | 2026-02-27 (Phase 3 end)    | Phase 3 World Gen complete. BSP algorithm and dynamic density wilderness encounters via `ChronicleReader` implemented and tested. Proceeding to Phase 4.                 | Phase 3 close-out |
 | 2026-02-27 (Phase 4 end)    | Phase 4 complete. Data loaders wired with Pydantic for JIT caching of TOML seed data, combined with Session Management context collapsing.                             | Phase 4 close-out |
+| 2026-02-27 (Phase 5 end)    | Phase 5 complete. Expanded data/abilities schema to handle AoE, Healing, and single-target rules. Rewrote action_resolution_system to dynamically route TOML AP costs. | Phase 5 close-out |
+| 2026-02-27 (Phase 6 end)    | Phase 6 complete. Rendered the backend engine into visual tcod screen states. Added PyInstaller wrapper script.                                                        | Phase 6 close-out |
 
 (Auto-updated by scheduled task every hour; user can also request manual refresh)

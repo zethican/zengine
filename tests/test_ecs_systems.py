@@ -30,7 +30,8 @@ def test_action_resolution_attack_success():
     actor.components[ActionEconomy] = ActionEconomy(ap_pool=100)
     events = []
     bus.subscribe(EVT_ACTION_RESOLVED, lambda e: events.append(e))
-    action_resolution_system(registry, actor, "attack", {"target": "Foe"}, bus)
+    # MUST provide a valid TOML ability id (e.g. "basic_attack")
+    action_resolution_system(registry, actor, "basic_attack", {"target": "Foe"}, bus)
     assert actor.components[ActionEconomy].ap_pool == 50
     assert len(events) == 1
     assert events[0].target == "Foe"

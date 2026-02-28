@@ -83,34 +83,42 @@ def action_resolution_system(
     action_type: str,
     action_payload: Dict[str, Any],
     bus: EventBus
-) -> None:
+) -> bool:
     """
     Execute a single action for a specific entity.
     Deducts AP and emits EVT_ACTION_RESOLVED.
+    Returns True if the action was successfully paid for and validated, False otherwise.
     """
     if ActionEconomy not in entity.components:
-        return
+        return False
 
     economy = entity.components[ActionEconomy]
     
-    if action_type == "attack":
-        # AP cost logic (TODO: load from TOML; MVP: 50 AP)
-        ap_cost = 50
-        if economy.ap_pool < ap_cost:
-            return # Insufficient AP
-            
-        economy.ap_pool -= ap_cost
-        economy.ap_spent_this_turn += ap_cost
+    # action_type is now an ability_id
+    from engine.data_loader import get_ability_def
+    try:
+        ability = get_ability_def(action_type)
+        ap_cost = ability.ap_cost
+    except FileNotFoundError:
+        # Fallback or invalid ability
+        return False
         
-        source_name = str(entity)
-        from engine.ecs.components import EntityIdentity
-        if EntityIdentity in entity.components:
-            source_name = entity.components[EntityIdentity].name
-            
-        # Emit resolve event
-        bus.emit(CombatEvent(
-            event_key=EVT_ACTION_RESOLVED,
-            source=source_name,
-            target=action_payload.get("target"),
-            data={"action_type": "attack", "ap_spent": ap_cost}
-        ))
+    if economy.ap_pool < ap_cost:
+        return False # Insufficient AP
+        
+    economy.ap_pool -= ap_cost
+    economy.ap_spent_this_turn += ap_cost
+    
+    source_name = str(entity)
+    from engine.ecs.components import EntityIdentity
+    if EntityIdentity in entity.components:
+        source_name = entity.components[EntityIdentity].name
+        
+    # Emit resolve event
+    bus.emit(CombatEvent(
+        event_key=EVT_ACTION_RESOLVED,
+        source=source_name,
+        target=action_payload.get("target"),
+        data={"action_type": action_type, "ap_spent": ap_cost}
+    ))
+    return True

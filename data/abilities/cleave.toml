@@ -1,0 +1,6 @@
+id = "cleave"
+name = "Wide Cleave"
+ap_cost = 60
+damage_die = 6
+damage_bonus = 1
+target_type = "adjacent_all"

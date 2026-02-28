@@ -1,0 +1,6 @@
+id = "heal"
+name = "First Aid"
+ap_cost = 50
+damage_die = -6 # Negative indicates healing
+damage_bonus = -2
+target_type = "self"

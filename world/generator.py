@@ -214,6 +214,30 @@ class ChunkManager:
             
         return chunk_data
 
+    def get_tile(self, global_x: int, global_y: int) -> str:
+        """Returns the specific string terrain type ('wall', 'floor', 'grass', 'tree') for a given coordinate."""
+        chunk_x = global_x // self.chunk_size
+        chunk_y = global_y // self.chunk_size
+        chunk = self.get_chunk(chunk_x, chunk_y)
+        
+        # Local coordinates mapping within the chunk
+        local_x = global_x % self.chunk_size
+        local_y = global_y % self.chunk_size
+        
+        if "dungeon_layout" in chunk:
+            tiles = chunk["dungeon_layout"]["tiles"]
+            # To handle 40x40 dungeon in 20x20 chunks gracefully for MVP, 
+            # we just modulo the dimensions if they mismatch, or bounds check.
+            if 0 <= local_y < len(tiles) and 0 <= local_x < len(tiles[0]):
+                return tiles[local_y][local_x]
+                
+        if chunk["terrain"] == "wilderness":
+            # Procedural deterministic noise for wilderness
+            rng = random.Random(hash((global_x, global_y, self.world_seed)))
+            return rng.choice(["grass", "grass", "grass", "grass", "grass", "tree"])
+            
+        return chunk["terrain"]
+
 # ============================================================
 # SMOKE TEST
 # ============================================================

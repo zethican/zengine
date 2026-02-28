@@ -196,13 +196,13 @@ class SimulationLoop:
         pos = entity.components[Position]
         new_x, new_y = pos.x + dx, pos.y + dy
         
-        chunk_x = new_x // self.world.chunk_size
-        chunk_y = new_y // self.world.chunk_size
-        chunk = self.world.get_chunk(chunk_x, chunk_y)
-        
+        tile_type = self.world.get_tile(new_x, new_y)
+        if tile_type == "wall":
+            return # Collision prevents movement
+            
         pos.x = new_x
         pos.y = new_y
-        pos.terrain_type = chunk["terrain"]
+        pos.terrain_type = tile_type
 
     def apply_damage_ecs(self, target: tcod.ecs.Entity, amount: int) -> None:
         """
@@ -232,46 +232,91 @@ class SimulationLoop:
                 data={"final_hp": vitals.hp}
             ))
 
-    def resolve_attack_ecs(self, attacker: tcod.ecs.Entity, defender: tcod.ecs.Entity) -> None:
+    def invoke_ability_ecs(self, attacker: tcod.ecs.Entity, ability_id: str, target: Optional[tcod.ecs.Entity] = None) -> None:
         """
-        Perform an attack action. Follows the Phase 2 action_resolution_system + combat engine logic.
+        Executes a data-driven ability, replacing the hardcoded resolve_attack_ecs.
+        Handles single target, self, and adjacent_all target types, as well as healing vs damage.
         """
+        from engine.data_loader import get_ability_def
+        try:
+            ability = get_ability_def(ability_id)
+        except FileNotFoundError:
+            return
+            
         attacker_name = attacker.components.get(EntityIdentity).name if EntityIdentity in attacker.components else str(attacker)
-        defender_name = defender.components.get(EntityIdentity).name if EntityIdentity in defender.components else str(defender)
         
-        # Run base action tracking system
-        payload = {"target": defender_name}
-        action_resolution_system(self.registry, attacker, "attack", payload, self.bus)
-        
-        # Execute combat math
+        # 1. Validate & Deduct AP via system
+        payload = {"target": str(target) if target else "None"}
+        if not action_resolution_system(self.registry, attacker, ability_id, payload, self.bus):
+            return # Failed AP validation
+            
+        # 2. Determine Targets
+        targets = []
+        if ability.target_type == "self":
+            targets = [attacker]
+        elif ability.target_type == "single":
+            if target is not None:
+                targets = [target]
+        elif ability.target_type == "adjacent_all":
+            # Very basic proximity logic (Chebyshev distance of 1)
+            if Position in attacker.components:
+                ax, ay = attacker.components[Position].x, attacker.components[Position].y
+                for ent in self.registry.Q.all_of(components=[Position, CombatVitals]):
+                    if ent == attacker:
+                        continue
+                    px, py = ent.components[Position].x, ent.components[Position].y
+                    if max(abs(px - ax), abs(py - ay)) <= 1:
+                        targets.append(ent)
+                        
+        if not targets:
+            return
+
+        # 3. Apply Effects
+        is_heal = (ability.damage_die < 0)
         atk_stat = attacker.components.get(CombatStats)
-        def_stat = defender.components.get(CombatStats)
-        
         atk_mod = atk_stat.attack_bonus if atk_stat else 0
-        def_mod = def_stat.defense_bonus if def_stat else 0
-        dmg_bonus = atk_stat.damage_bonus if atk_stat else 0
         
-        dc = BASE_HIT_DC + def_mod
-        
-        roll_data = resolve_roll(modifier=atk_mod)
-        outcome = roll_outcome_category(
-            roll_data["total"], dc,
-            roll_data["is_crit"], roll_data["is_fumble"]
-        )
-        
-        damage = 0
-        if outcome in ("hit", "critical", "graze"):
-            raw = random.randint(1, 6) + dmg_bonus
-            if outcome == "critical":
-                raw = 6 + dmg_bonus
-            if outcome == "graze":
-                raw = max(1, raw // 2)
-            damage = max(0, raw)
-            self.apply_damage_ecs(defender, damage)
-        
-        # Turn end
+        for t in targets:
+            # Healing bypasses AC roll
+            if is_heal:
+                heal_amt = random.randint(1, abs(ability.damage_die)) + abs(ability.damage_bonus)
+                if CombatVitals in t.components:
+                    t_vitals = t.components[CombatVitals]
+                    t_vitals.hp = min(t_vitals.max_hp, t_vitals.hp + heal_amt)
+                    
+                    target_name = t.components.get(EntityIdentity).name if EntityIdentity in t.components else str(t)
+                    self.bus.emit(CombatEvent(
+                        event_key=EVT_ON_DAMAGE, # Reusing event for health delta, logged via chronicle
+                        source=attacker_name,
+                        target=target_name,
+                        data={"amount": -heal_amt, "hp_remaining": t_vitals.hp, "is_heal": True}
+                    ))
+                continue
+                
+            # Combat
+            def_stat = t.components.get(CombatStats)
+            def_mod = def_stat.defense_bonus if def_stat else 0
+            
+            dc = BASE_HIT_DC + def_mod
+            roll_data = resolve_roll(modifier=atk_mod)
+            outcome = roll_outcome_category(
+                roll_data["total"], dc,
+                roll_data["is_crit"], roll_data["is_fumble"]
+            )
+            
+            damage = 0
+            if outcome in ("hit", "critical", "graze"):
+                raw = random.randint(1, max(1, ability.damage_die)) + ability.damage_bonus
+                if outcome == "critical":
+                    raw = ability.damage_die + ability.damage_bonus # Max die
+                if outcome == "graze":
+                    raw = max(1, raw // 2)
+                damage = max(0, raw)
+                self.apply_damage_ecs(t, damage)
+                
+        # 4. End Turn Emission
         self.bus.emit(CombatEvent(
             event_key=EVT_TURN_ENDED,
             source=attacker_name,
-            data={"ap_spent": 50}
+            data={"ap_spent": ability.ap_cost}
         ))

@@ -1,0 +1,19 @@
+[world]
+era = "Recent"
+cycle = 1
+tick = 18
+world_seed = 10101
+
+[[entities]]
+id = 1
+name = "Standard Hero"
+archetype = "Standard"
+is_player = true
+x = 0
+y = -1
+hp = 30
+max_hp = 30
+attack_bonus = 5
+damage_bonus = 2
+defense_bonus = 0
+speed = 10.0
