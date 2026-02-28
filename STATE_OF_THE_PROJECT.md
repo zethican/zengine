@@ -1,6 +1,6 @@
 # STATE_OF_THE_PROJECT.md
 
-**Last Updated:** 2026-02-27 21:00 (final Phase 2 core checkpoint)
+**Last Updated:** 2026-02-27 (Manual Checkpoint v0.16 - Pre-Phase 7)
 
 ---
 
@@ -205,5 +205,6 @@ See `FUTURE.md` for full list. Key items:
 | 2026-02-27 (Phase 4 end)    | Phase 4 complete. Data loaders wired with Pydantic for JIT caching of TOML seed data, combined with Session Management context collapsing.                             | Phase 4 close-out |
 | 2026-02-27 (Phase 5 end)    | Phase 5 complete. Expanded data/abilities schema to handle AoE, Healing, and single-target rules. Rewrote action_resolution_system to dynamically route TOML AP costs. | Phase 5 close-out |
 | 2026-02-27 (Phase 6 end)    | Phase 6 complete. Rendered the backend engine into visual tcod screen states. Added PyInstaller wrapper script.                                                        | Phase 6 close-out |
+| 2026-02-27 (v0.16)          | User-declared manual checkpoint v0.16. Entering Phase 7 (Inventory/Items).                                                                                             | Manual Save       |
 
 (Auto-updated by scheduled task every hour; user can also request manual refresh)

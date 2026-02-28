@@ -6,7 +6,7 @@ This document serves as the foundational instructional context for the **ZRogue 
 
 ## Project Overview
 
-**ZEngine** is a social ecology simulator and party-based roguelike. It focuses on procedural generation, narrative persistence, and a reactive social layer. The project is currently in **Phase 2 (Implementation)**, following a completed and locked **Phase 1 (Design Contracts)**.
+**ZEngine** is a social ecology simulator and party-based roguelike. It focuses on procedural generation, narrative persistence, and a reactive social layer. The project is currently entering **Phase 7 (Inventory/Items)** (Checkpoint v0.16), following the completion of the Phase 6 Interactive UI.
 
 - **Stack:** Python 3.14.3
 - **ECS:** `python-tcod-ecs` (sparse-set ECS with strong type-hinting)
@@ -96,8 +96,9 @@ ZEngine follows a strict ECS pattern:
 - `DESIGN_VARIABLES.md`: Registry of all game constants.
 - `engine/`: Core logic implementations (`combat.py`, `social_state.py`, `chronicle.py`, `equilibrium.py`).
 - `engine/ecs/`: ECS definitions (`components.py`, `systems.py`).
-- `world/`: Procedural generation logic (`generator.py`).
-- `ui/`: Terminal rendering (`renderer.py`).
+- `world/`: Procedural generation logic (`generator.py`, `wilderness.py`).
+- `ui/`: Terminal rendering and State Machine (`renderer.py`, `screens.py`, `states.py`).
+- `run.py`: The main game executable loop for user interaction.
 - `user_scratch/`: Archival design documents and reference manifests.
 
 
