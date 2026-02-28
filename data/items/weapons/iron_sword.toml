@@ -1,0 +1,15 @@
+# data/items/weapons/iron_sword.toml
+id = "iron_sword"
+name = "Iron Sword"
+description = "A standard-issue blade, notched but reliable."
+
+[equippable]
+slot = "hand"
+
+[item_stats]
+attack_bonus = 2
+damage_bonus = 3
+
+[tags]
+is_sword = true
+is_metallic = true

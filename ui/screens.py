@@ -2,13 +2,13 @@
 ZEngine — ui/screens.py
 Implementations of the UI Screen States.
 """
-from typing import Any
+from typing import Any, List, Optional
 import tcod
 
 from ui.states import BaseState, Engine
 from ui.renderer import Renderer
 from engine.loop import SimulationLoop
-from engine.ecs.components import Position, EntityIdentity, CombatVitals, CombatStats, ActionEconomy, MovementStats
+from engine.ecs.components import Position, EntityIdentity, CombatVitals, CombatStats, ActionEconomy, MovementStats, ItemIdentity
 from engine.data_loader import get_entity_def, get_starting_rumors
 from world.generator import Rumor
 
@@ -83,7 +83,7 @@ class ExplorationState(BaseState):
             max_hp = self.player.components[CombatVitals].max_hp
             renderer.root_console.print(1, 1, f"HP: {hp}/{max_hp}", fg=(0, 255, 0))
             
-        renderer.root_console.print(1, renderer.height - 2, "[Arrows/WASD] Move   [i] Inventory   [ESC] Menu", fg=(150, 150, 150))
+        renderer.root_console.print(1, renderer.height - 2, "[Arrows/WASD] Move   [i] Inventory   [c] Craft   [ESC] Menu", fg=(150, 150, 150))
         
         # Camera centering based on player
         cam_x, cam_y = 0, 0
@@ -134,16 +134,18 @@ class ExplorationState(BaseState):
             self.engine.change_state(MainMenuState(self.engine))
         elif event.sym == tcod.event.KeySym.i:
             self.engine.change_state(InventoryState(self.engine, self))
+        elif event.sym == tcod.event.KeySym.c:
+            self.engine.change_state(CraftingState(self.engine, self))
             
         elif self.player:
             dx, dy = 0, 0
-            if event.sym in (tcod.event.KeySym.UP, tcod.event.KeySym.w):
+            if event.sym in (tcod.event.KeySym.UP, tcod.event.KeySym.w, tcod.event.KeySym.k):
                 dy = -1
-            elif event.sym in (tcod.event.KeySym.DOWN, tcod.event.KeySym.s):
+            elif event.sym in (tcod.event.KeySym.DOWN, tcod.event.KeySym.s, tcod.event.KeySym.j):
                 dy = 1
-            elif event.sym in (tcod.event.KeySym.LEFT, tcod.event.KeySym.a):
+            elif event.sym in (tcod.event.KeySym.LEFT, tcod.event.KeySym.a, tcod.event.KeySym.h):
                 dx = -1
-            elif event.sym in (tcod.event.KeySym.RIGHT, tcod.event.KeySym.d):
+            elif event.sym in (tcod.event.KeySym.RIGHT, tcod.event.KeySym.d, tcod.event.KeySym.l):
                 dx = 1
                 
             if dx != 0 or dy != 0:
@@ -173,3 +175,91 @@ class InventoryState(BaseState):
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym in (tcod.event.KeySym.ESCAPE, tcod.event.KeySym.i):
             self.engine.change_state(self.parent_state)
+
+
+class CraftingState(BaseState):
+    """The paused crafting overlay."""
+    
+    def __init__(self, engine: Engine, parent_state: ExplorationState):
+        super().__init__(engine)
+        self.parent_state = parent_state
+        self.sim = parent_state.sim
+        self.player = parent_state.player
+        self.selected_indices: List[int] = []
+        self.cursor_pos = 0
+        self.inventory: List[tcod.ecs.Entity] = []
+        self._refresh_inventory()
+
+    def _refresh_inventory(self) -> None:
+        """Fetch current items in player inventory."""
+        self.inventory = list(self.player.relation_tags_many["IsCarrying"])
+
+    def on_render(self, renderer: Renderer) -> None:
+        # Render exploration state underneath
+        self.parent_state.on_render(renderer)
+        
+        # Draw window
+        renderer.root_console.draw_frame(
+            15, 5, renderer.width - 30, renderer.height - 10,
+            "Crafting Table", clear=True, fg=(255, 255, 0), bg=(0, 0, 0)
+        )
+        
+        renderer.root_console.print(17, 7, "Select TWO items to combine:", fg=(200, 200, 200))
+        
+        if not self.inventory:
+            renderer.root_console.print(17, 9, "(Inventory empty)", fg=(128, 128, 128))
+        
+        for i, item in enumerate(self.inventory):
+            name = "Unknown Item"
+            if ItemIdentity in item.components:
+                name = item.components[ItemIdentity].name
+            
+            fg = (255, 255, 255)
+            if i == self.cursor_pos:
+                fg = (0, 255, 255) # Cursor highlight
+            
+            prefix = "[ ] "
+            if i in self.selected_indices:
+                prefix = "[X] "
+                fg = (255, 255, 0) # Selected highlight
+                
+            renderer.root_console.print(17, 9 + i, f"{prefix}{name}", fg=fg)
+
+        if len(self.selected_indices) == 2:
+            renderer.root_console.print(17, renderer.height - 7, "[Enter] Combine Items", fg=(0, 255, 0))
+        else:
+            renderer.root_console.print(17, renderer.height - 7, "Pick 2 items...", fg=(100, 100, 100))
+
+        renderer.root_console.print(17, renderer.height - 6, "[ESC/C] Cancel", fg=(200, 200, 200))
+        
+    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
+        if event.sym in (tcod.event.KeySym.ESCAPE, tcod.event.KeySym.c):
+            self.engine.change_state(self.parent_state)
+        elif event.sym in (tcod.event.KeySym.UP, tcod.event.KeySym.w, tcod.event.KeySym.k):
+            self.cursor_pos = max(0, self.cursor_pos - 1)
+        elif event.sym in (tcod.event.KeySym.DOWN, tcod.event.KeySym.s, tcod.event.KeySym.j):
+            self.cursor_pos = min(len(self.inventory) - 1, self.cursor_pos + 1)
+        elif event.sym in (tcod.event.KeySym.RETURN, tcod.event.KeySym.KP_ENTER, tcod.event.KeySym.SPACE):
+            if not self.inventory:
+                return
+                
+            if self.cursor_pos in self.selected_indices:
+                self.selected_indices.remove(self.cursor_pos)
+            elif len(self.selected_indices) < 2:
+                self.selected_indices.append(self.cursor_pos)
+                
+            if len(self.selected_indices) == 2 and event.sym in (tcod.event.KeySym.RETURN, tcod.event.KeySym.KP_ENTER):
+                self._attempt_craft()
+
+    def _attempt_craft(self) -> None:
+        item_a = self.inventory[self.selected_indices[0]]
+        item_b = self.inventory[self.selected_indices[1]]
+        
+        # Use SimulationLoop to invoke the craft action
+        success = self.sim.invoke_ability_ecs(self.player, "craft", item_a, second_target=item_b)
+        
+        if success:
+            # Refresh and reset
+            self._refresh_inventory()
+            self.selected_indices = []
+            self.cursor_pos = 0

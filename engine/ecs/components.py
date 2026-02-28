@@ -50,3 +50,34 @@ class CombatStats:
     attack_bonus: int = 0
     defense_bonus: int = 0
     damage_bonus: int = 0
+
+@dataclass
+class ItemIdentity:
+    entity_id: str
+    name: str
+    description: str
+    template_origin: Optional[str] = None
+
+@dataclass
+class Quantity:
+    amount: int = 1
+    max_stack: int = 1
+
+@dataclass
+class Equippable:
+    slot_type: str  # "head", "hand", "torso", etc.
+
+@dataclass
+class ItemStats:
+    attack_bonus: int = 0
+    damage_bonus: int = 0
+    protection: int = 0
+
+@dataclass
+class Anatomy:
+    available_slots: List[str] = field(default_factory=lambda: ["hand", "hand", "torso", "head"])
+
+@dataclass
+class Lineage:
+    parent_ids: List[str] = field(default_factory=list)
+    inherited_tags: List[str] = field(default_factory=list)

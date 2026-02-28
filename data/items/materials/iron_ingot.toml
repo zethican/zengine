@@ -1,0 +1,9 @@
+# data/items/materials/iron_ingot.toml
+id = "iron_ingot"
+name = "Iron Ingot"
+description = "A heavy bar of refined iron."
+
+[tags]
+is_material = true
+is_metallic = true
+is_iron = true

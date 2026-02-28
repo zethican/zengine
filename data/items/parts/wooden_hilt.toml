@@ -1,0 +1,12 @@
+# data/items/parts/wooden_hilt.toml
+id = "wooden_hilt"
+name = "Wooden Hilt"
+description = "A carved handle of wood."
+
+[item_stats]
+attack_bonus = 1
+
+[tags]
+is_part = true
+is_hilt = true
+is_wooden = true

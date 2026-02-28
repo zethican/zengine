@@ -232,24 +232,42 @@ class SimulationLoop:
                 data={"final_hp": vitals.hp}
             ))
 
-    def invoke_ability_ecs(self, attacker: tcod.ecs.Entity, ability_id: str, target: Optional[tcod.ecs.Entity] = None) -> None:
+    def invoke_ability_ecs(self, attacker: tcod.ecs.Entity, ability_id: str, target: Optional[tcod.ecs.Entity] = None, **kwargs) -> bool:
         """
         Executes a data-driven ability, replacing the hardcoded resolve_attack_ecs.
         Handles single target, self, and adjacent_all target types, as well as healing vs damage.
+        Also handles built-in inventory actions (pickup, drop, equip, craft).
         """
         from engine.data_loader import get_ability_def
-        try:
-            ability = get_ability_def(ability_id)
-        except FileNotFoundError:
-            return
+        
+        # 0. Handle Built-in Actions (non-TOML)
+        is_builtin = ability_id in ["pickup", "drop", "equip", "craft"]
+        ability = None
+        
+        if is_builtin:
+            # Create a dummy ability object for logging if needed, or just proceed
+            pass
+        else:
+            try:
+                ability = get_ability_def(ability_id)
+            except FileNotFoundError:
+                return False
             
         attacker_name = attacker.components.get(EntityIdentity).name if EntityIdentity in attacker.components else str(attacker)
         
         # 1. Validate & Deduct AP via system
-        payload = {"target": str(target) if target else "None"}
+        payload = {
+            "target": str(target) if target else "None",
+            "target_entity": target,
+            **kwargs
+        }
         if not action_resolution_system(self.registry, attacker, ability_id, payload, self.bus):
-            return # Failed AP validation
+            return False # Failed AP validation or system logic
             
+        # If it was a built-in action, action_resolution_system already handled the state change.
+        if is_builtin:
+            return True
+
         # 2. Determine Targets
         targets = []
         if ability.target_type == "self":

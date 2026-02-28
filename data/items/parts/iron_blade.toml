@@ -1,0 +1,13 @@
+# data/items/parts/iron_blade.toml
+id = "iron_blade"
+name = "Iron Blade"
+description = "A sharp, straight length of iron."
+
+[item_stats]
+damage_bonus = 2
+
+[tags]
+is_part = true
+is_blade = true
+is_metallic = true
+is_iron = true

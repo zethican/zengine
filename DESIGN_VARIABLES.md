@@ -14,6 +14,17 @@
 
 ---
 
+## Inventory & Items (Phase 7)
+
+| Variable                 | Value        | Type  | Notes                                                          |
+| ------------------------ | ------------ | ----- | -------------------------------------------------------------- |
+| `AP_COST_PICKUP`         | 10           | int   | AP cost to pick up an item from the floor                      |
+| `AP_COST_DROP`           | 10           | int   | AP cost to drop an item from inventory to the floor            |
+| `AP_COST_EQUIP`          | 20           | int   | AP cost to equip a carried item                                |
+| `AP_COST_CRAFT`          | 30           | int   | AP cost to combine two items                                   |
+
+---
+
 ## Social Layer (Catch-up & Epistemology)
 
 | Variable                 | Value        | Type  | Notes                                                          |

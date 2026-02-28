@@ -1,0 +1,5 @@
+# data/recipes/basic_sword.toml
+id = "basic_sword"
+part_a_tag = "is_blade"
+part_b_tag = "is_hilt"
+result_template = "weapons/iron_sword"

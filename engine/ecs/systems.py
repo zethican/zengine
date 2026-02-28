@@ -2,9 +2,9 @@
 ZEngine — engine/ecs/systems.py
 ECS Systems: Pure functions for turn resolution, actions, and combat.
 =====================================================================
-Version:     0.1  (Phase 2 — canonical implementation)
+Version:     0.2  (Phase 7 — inventory and crafting)
 Stack:       Python 3.14.3 | python-tcod-ecs
-Status:      Production-ready for Phase 2.
+Status:      Production-ready for Phase 7.
 
 Architecture notes
 ------------------
@@ -30,8 +30,13 @@ from engine.combat import (
     EVT_TURN_STARTED, 
     EVT_ACTION_RESOLVED,
     ENERGY_THRESHOLD,
-    AP_POOL_SIZE
+    AP_POOL_SIZE,
+    AP_COST_PICKUP,
+    AP_COST_DROP,
+    AP_COST_EQUIP,
+    AP_COST_CRAFT
 )
+from engine.item_factory import merge_items
 
 # ============================================================
 # TURN SYSTEMS
@@ -94,7 +99,65 @@ def action_resolution_system(
 
     economy = entity.components[ActionEconomy]
     
-    # action_type is now an ability_id
+    # 1. Handle Built-in Inventory Actions
+    if action_type in ["pickup", "drop", "equip", "craft"]:
+        ap_costs = {
+            "pickup": AP_COST_PICKUP,
+            "drop": AP_COST_DROP,
+            "equip": AP_COST_EQUIP,
+            "craft": AP_COST_CRAFT
+        }
+        ap_cost = ap_costs[action_type]
+        
+        if economy.ap_pool < ap_cost:
+            return False
+            
+        success = False
+        if action_type == "craft":
+            part_a = action_payload.get("part_a")
+            part_b = action_payload.get("part_b")
+            if part_a and part_b:
+                result = merge_items(registry, part_a, part_b)
+                if result:
+                    # Explicitly remove parents from the actor's inventory relation
+                    if part_a in entity.relation_tags_many["IsCarrying"]:
+                        entity.relation_tags_many["IsCarrying"].remove(part_a)
+                    if part_b in entity.relation_tags_many["IsCarrying"]:
+                        entity.relation_tags_many["IsCarrying"].remove(part_b)
+
+                    entity.relation_tags_many["IsCarrying"].add(result)
+                    success = True
+        else:
+            target_item = action_payload.get("target_entity")
+            if not target_item:
+                return False
+                
+            if action_type == "pickup":
+                success = pickup_item_system(entity, target_item)
+            elif action_type == "drop":
+                success = drop_item_system(entity, target_item)
+            elif action_type == "equip":
+                success = equip_item_system(entity, target_item)
+            
+        if success:
+            economy.ap_pool -= ap_cost
+            economy.ap_spent_this_turn += ap_cost
+            
+            source_name = str(entity)
+            from engine.ecs.components import EntityIdentity
+            if EntityIdentity in entity.components:
+                source_name = entity.components[EntityIdentity].name
+            
+            bus.emit(CombatEvent(
+                event_key=EVT_ACTION_RESOLVED,
+                source=source_name,
+                target=action_payload.get("target"),
+                data={"action_type": action_type, "ap_spent": ap_cost}
+            ))
+            return True
+        return False
+
+    # 2. Handle Ability-based Actions
     from engine.data_loader import get_ability_def
     try:
         ability = get_ability_def(action_type)
@@ -121,4 +184,68 @@ def action_resolution_system(
         target=action_payload.get("target"),
         data={"action_type": action_type, "ap_spent": ap_cost}
     ))
+    return True
+
+
+# ============================================================
+# INVENTORY SYSTEMS
+# ============================================================
+
+def pickup_item_system(actor: tcod.ecs.Entity, item: tcod.ecs.Entity) -> bool:
+    """Moves item from Floor (Position) to Inventory (IsCarrying relation)."""
+    if Position not in actor.components or Position not in item.components:
+        return False
+        
+    actor_pos = actor.components[Position]
+    item_pos = item.components[Position]
+    
+    if (actor_pos.x, actor_pos.y) != (item_pos.x, item_pos.y):
+        return False # Too far away
+        
+    # Atomic transaction
+    del item.components[Position]
+    actor.relation_tags_many["IsCarrying"].add(item)
+    return True
+
+def drop_item_system(actor: tcod.ecs.Entity, item: tcod.ecs.Entity) -> bool:
+    """Moves item from Inventory (IsCarrying) to Floor (Position)."""
+    if item not in actor.relation_tags_many["IsCarrying"]:
+        return False
+        
+    if Position not in actor.components:
+        return False
+        
+    actor_pos = actor.components[Position]
+    
+    # Atomic transaction
+    actor.relation_tags_many["IsCarrying"].remove(item)
+    if item in actor.relation_tags_many["IsEquipped"]:
+        actor.relation_tags_many["IsEquipped"].remove(item)
+        
+    item.components[Position] = Position(x=actor_pos.x, y=actor_pos.y)
+    return True
+
+def equip_item_system(actor: tcod.ecs.Entity, item: tcod.ecs.Entity) -> bool:
+    """Equips an item if it's carried and a slot is available in Anatomy."""
+    from engine.ecs.components import Anatomy, Equippable
+    if item not in actor.relation_tags_many["IsCarrying"]:
+        return False
+    if Anatomy not in actor.components or Equippable not in item.components:
+        return False
+        
+    anatomy = actor.components[Anatomy]
+    item_equip = item.components[Equippable]
+    
+    # Count currently equipped items in this slot type
+    equipped_in_slot = 0
+    for e_item in actor.relation_tags_many["IsEquipped"]:
+        if Equippable in e_item.components and e_item.components[Equippable].slot_type == item_equip.slot_type:
+            equipped_in_slot += 1
+            
+    # Check anatomy limit
+    max_slots = anatomy.available_slots.count(item_equip.slot_type)
+    if equipped_in_slot >= max_slots:
+        return False # Slot occupied
+        
+    actor.relation_tags_many["IsEquipped"].add(item)
     return True

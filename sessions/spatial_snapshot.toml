@@ -1,7 +1,7 @@
 [world]
 era = "Recent"
 cycle = 1
-tick = 417
+tick = 31
 world_seed = 10101
 
 [[entities]]
@@ -9,8 +9,8 @@ id = 1
 name = "Standard Hero"
 archetype = "Standard"
 is_player = true
-x = -17
-y = 108
+x = -16
+y = 4
 hp = 30
 max_hp = 30
 attack_bonus = 5

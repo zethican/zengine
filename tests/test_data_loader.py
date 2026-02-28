@@ -22,3 +22,9 @@ def test_load_rumors():
     rumors = get_starting_rumors()
     assert len(rumors) >= 2
     assert rumors[0].pol_type == "dungeon"
+
+def test_load_item_def():
+    from engine.data_loader import get_item_def
+    item = get_item_def("weapons/iron_sword")
+    assert item.name == "Iron Sword"
+    assert item.equippable["slot"] == "hand"

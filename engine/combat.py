@@ -67,6 +67,10 @@ COMBAT_ROLL_DISPLAY: str = "category"   # "category" | "raw"
 
 # AP and Movement — resolved Phase 1; registered in DESIGN_VARIABLES.md
 AP_POOL_SIZE: int = 100                     # Resets each turn; matches ENERGY_THRESHOLD scale
+AP_COST_PICKUP: int = 10                    # AP cost to pick up an item
+AP_COST_DROP: int = 10                      # AP cost to drop an item
+AP_COST_EQUIP: int = 20                     # AP cost to equip an item
+AP_COST_CRAFT: int = 30                     # AP cost to combine two items
 MOVEMENT_ALLOCATION: str = "ceil(100/speed)" # Formula; computed per entity at spawn
 
 

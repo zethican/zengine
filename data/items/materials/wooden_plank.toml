@@ -1,0 +1,8 @@
+# data/items/materials/wooden_plank.toml
+id = "wooden_plank"
+name = "Wooden Plank"
+description = "Sturdy timber, cut from a great-tree."
+
+[tags]
+is_material = true
+is_wooden = true

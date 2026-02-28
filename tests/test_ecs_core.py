@@ -49,3 +49,10 @@ def test_query_filter():
     combatants = list(registry.Q.all_of(components=[Position, CombatVitals]))
     assert len(combatants) == 1
     assert combatants[0] == e2
+
+def test_item_components_exist():
+    from engine.ecs.components import ItemIdentity, Equippable
+    ident = ItemIdentity(entity_id="iron_sword", name="Iron Sword", description="A blade.")
+    equip = Equippable(slot_type="hand")
+    assert ident.name == "Iron Sword"
+    assert equip.slot_type == "hand"
