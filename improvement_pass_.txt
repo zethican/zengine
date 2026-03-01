@@ -1,0 +1,165 @@
+Now I have the full picture. My earlier draft had one significant error — I need to correct it before presenting the final analysis.
+
+---
+
+Here is the corrected, validated gap analysis:
+
+---
+
+## Gap Analysis: ZEngine vs. Caves of Qud / Project Zomboid
+
+### Corrections from first draft
+
+**Save/Load — RETRACTED as a gap.** `engine/loop.py` implements `save_session()`, `load_session()`, `_serialize_entity()`, and `_deserialize_entity()`. This system exists and works.
+
+**AI "Pathfinding" — partially correct, but nuanced.** The Dijkstra in `ai_system.py` computes *influence heatmaps* (threat/affinity/urgency gradients), not paths. The actual move decision at `systems.py:217` is a **1-tile greedy lookahead** — the NPC picks the best adjacent cell from the gradient. An NPC blocked by a wall will get stuck because it cannot route around obstacles. The pathfinding gap is real, just not "zero infrastructure" — it's one layer above nothing.
+
+---
+
+### The Validated List
+
+#### Category 1 — Core Game Loop (Most Universal)
+
+**Missing: game-over / win / restart flow**
+- `loop.py:578` sets `vitals.is_dead = True` — and stops there. Nothing transitions to a death screen.
+- `ui/states.py` has only one state class (`BaseState`). No `GameOverState`, `VictoryState`, `MainMenuState`.
+- No win condition exists (no main objective to complete).
+- **Architecture implication:** Add terminal `GameState` enum values; wire the death check into a state-machine transition. The event bus already fires combat events — a subscriber on `PlayerDied` is the right hook.
+
+---
+
+#### Category 2 — Player Progression (Universal RPG)
+
+**Missing: XP, levels, skill trees, character creation**
+- Attributes (`Might/Finesse/Resolve`) exist as components but are set at template-load time and never mutate.
+- Abilities are TOML-defined but have no unlock conditions or progression gates.
+- Hero drops into `hero_standard.toml` with no player choice.
+- **Architecture implication:** New `XPComponent`, `LevelComponent`, and `LevelingSystem` that listens on the Chronicle bus for kill events. Character creation is a new screen state before world generation.
+
+---
+
+#### Category 3 — AI Navigation (Universal, Blocking)
+
+**Missing: multi-tile path planning**
+- `systems.py:217` comment reads: *"Simple 1-tile lookahead"* — this is explicit.
+- The Dijkstra heatmap tells an NPC *which direction is generally better*, but offers no route around walls, doors, or other blocking entities.
+- A hostile NPC and player on opposite sides of a corridor will both freeze if there's one tile of wall between them.
+- **Architecture implication:** Add a per-entity `tcod.path.SimpleGraph` / `AStar` path cache. On target acquisition, compute a short path (8–15 tiles) and store waypoints as a component. The AI system pops waypoints instead of doing a 1-tile greedy check. `tcod.path` is already imported; the infrastructure is one step away.
+
+---
+
+#### Category 4 — Ability / Effect Resolution (Core Combat)
+
+**Missing: ability effects don't fire**
+- `action_resolution_system()` in `systems.py:482` dispatches `"attack"` → `resolve_attack()`, but ability TOML `effects` blocks (e.g., `cleave.toml`, `heavy_blow.toml`) are parsed and loaded but the resolver does not iterate and apply them.
+- `evaluate_formula()` exists at `systems.py:381` and `resolve_effect_targets()` at `systems.py:420` — both are ready infrastructure that isn't wired to the fire path.
+- No mana/resource component; cooldowns aren't tracked.
+- **Architecture implication:** Wire `action_resolution_system` → ability `effects[]` → `evaluate_formula` + `resolve_effect_targets` → `apply_modifier_blueprint`. Add `ResourceComponent` (mana) and a cooldown field to `ActionEconomy`.
+
+---
+
+#### Category 5 — Content Volume (Universal, Not Architectural)
+
+**Missing: almost everything is a stub**
+- 5 enemy entity templates, 1 crafting recipe (`basic_sword`), 3 affixes, 4 ability definitions
+- 0 loot tables, 0 quest definitions, 0 unique named NPCs with dialogue trees
+- The TOML data infrastructure (`data_loader.py`, `item_factory.py`, `spawner.py`) is correct and production-ready — this is purely an authoring gap
+- **Architecture implication:** None. This is ongoing content work: more entity TOMLs, `data/loot_tables/`, more recipes, affix expansion.
+
+---
+
+#### Category 6 — Quest / Objective System (Core RPG Layer)
+
+**Missing: no quest registry, no objective tracking**
+- The Chronicle records events and generates rumors, but no system tracks multi-step objectives or grants rewards on completion.
+- Dialogue actions (`recruit`, `rumor-share`, `trade`) execute but don't set persistent world flags that other systems read back.
+- **Architecture implication:** `QuestRegistry` as an ECS singleton; objectives as event-bus listeners that mark themselves complete. The Chronicle's `bus.emit()` calls are already the right hook points.
+
+---
+
+#### Category 7 — Status Effects / Conditions Display (Gameplay Feel)
+
+**Missing: buffs/debuffs are invisible; no persistent survival conditions**
+- `modifier_tick_system()` correctly expires modifiers, but nothing renders active conditions to the HUD.
+- No hunger, thirst, fatigue, bleeding, or temperature — i.e., no background survival loop.
+- `ConditionComponent` doesn't exist yet.
+- **Architecture implication:** Add `ConditionComponent` (list of named conditions with tick durations and per-tick effects), a `ConditionSystem`, and a HUD widget in `ui/renderer.py`.
+
+---
+
+#### Category 8 — NPC Simulation / World State Flags (Immersive Sim Layer)
+
+**Missing: NPCs only exist when the player is nearby; world state doesn't persist**
+- `social_awareness.engagement_range` gates all NPC activation; nothing runs off-screen.
+- Faction territories are defined (`world/territory.py`, `world/factions.py`) but territory capture/conflict never simulates between sessions.
+- No `WorldState` flag store — dialogue choices can't affect the world in ways other systems observe.
+- **Architecture implication:** `WorldSimSystem` (off-screen tick on session load/save), `WorldState` singleton in ECS. High architectural cost — implement after all blocking items above.
+
+---
+
+#### Category 9 — Character Creation Screen
+
+**Missing: player has no authoring agency at game start**
+- Archetype TOML references exist but aren't player-selectable.
+- No name entry, no starting trait selection, no attribute point allocation.
+- **Architecture implication:** New `CharacterCreationState` in `ui/states.py` before world generation; feeds chosen archetype into `hero_standard.toml` overrides or a parameterized hero factory.
+
+---
+
+#### Category 10 — Crafting Depth & Economy
+
+**Missing: only 1 recipe; trade uses hardcoded multipliers; no durability**
+- `engine/item_factory.py` and the crafting merge system work correctly.
+- `item.value` exists but pricing doesn't respond to supply/demand.
+- No `DurabilityComponent`.
+- **Architecture implication:** Expand `data/recipes/`; add `DurabilityComponent` + decay tick; hook item value to faction/social state supply signals.
+
+---
+
+#### Category 11 — Biome / Wilderness Depth
+
+**Missing: wilderness between POIs is mostly empty**
+- Biome assignment in `data/biomes.toml` works, but chunk boundaries are hard-edged.
+- `world/wilderness.py` uses a flat 15% spawn chance — no packs, dens, or ecology.
+- No weather, no per-tile environmental hazards.
+- **Architecture implication:** Per-biome spawn tables; noise-blended biome seams; `WeatherSystem` with per-tile movement modifiers.
+
+---
+
+#### Category 12 — Destructible / Dynamic Terrain
+
+**Missing: tiles never change after generation**
+- No door-toggle propagation to tile walkability, no barricading, no terrain destruction.
+- `toggle_door_system()` exists in `systems.py:59` — doors can be toggled, but tile cost maps aren't rebuilt, so pathfinding and FOV don't update.
+- **Architecture implication:** `TileStateMutator` that invalidates the chunk's cached cost/transparent arrays when a tile changes. Highest architectural cost item on the list.
+
+---
+
+#### Category 13 — Tooltips / UX Polish (Most Niche)
+
+**Missing: no tooltips, no minimap, combat log shows results but not raw rolls**
+- Item descriptions exist in TOML but are never rendered on hover.
+- No minimap widget.
+- `resolve_roll()` returns full roll data — just not surfaced in the UI.
+- **Architecture implication:** Tooltip render pass in `ui/renderer.py`; low priority.
+
+---
+
+### Priority Order (Implementation Sequence)
+
+| # | Feature | Why Blocking |
+|---|---------|-------------|
+| 1 | **Ability effect resolver** | Abilities exist and can be triggered but silently no-op |
+| 2 | **Game-over / restart flow** | Player death is unrecoverable; game is unplaytestable |
+| 3 | **AI multi-tile pathfinding** | NPCs get stuck against any obstacle |
+| 4 | **Player progression** (XP/levels) | No growth arc; all mid-game systems depend on it |
+| 5 | **Status effect HUD** | Modifiers fire invisibly; player can't make informed decisions |
+| 6 | **Quest / objective system** | Exploration and dialogue have no mechanical consequence |
+| 7 | **Content volume** | Ongoing; always parallel with above |
+| 8 | **Character creation** | Depends on progression system |
+| 9 | **Dialogue world-state flags** | Depends on quest system |
+| 10 | **NPC off-screen simulation** | High cost; depends on world-state flags |
+| 11 | **Crafting depth / economy** | Depends on content volume |
+| 12 | **Wilderness / biomes** | Cosmetic until late stage |
+| 13 | **Destructible terrain** | Highest architectural cost; last |
+| 14 | **Tooltips / UX polish** | Last |
