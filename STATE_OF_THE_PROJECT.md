@@ -1,6 +1,6 @@
 # STATE_OF_THE_PROJECT.md
 
-**Last Updated:** 2026-02-27 (Manual Checkpoint v0.35 - Tag-Based Functional Overhaul Complete)
+**Last Updated:** 2026-02-28 (Manual Checkpoint v0.45 - Exploration & Narrative Complete)
 
 ---
 
@@ -8,61 +8,55 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 19 (Foundation Refactor)| ✅ Tag-Based Functional Ability Pipeline implemented (v0.35) |
-| **Phase 19 Status**     | ✅ COMPLETE              | Abilities are now collections of tagged effects; TOML data-driven |
-| **Next Immediate Task** | Phase 20: Macro Ecology | Regional Faction Shifts and Territory Control                |
-| **Active Agent**        | Ready                   | Action resolution is now generic and extensible              |
+| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
+| **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
+| **Next Immediate Task** | Phase 25: Stress/Trauma | Social Fallout and Affliction System                         |
+| **Active Agent**        | Ready                   | All 95 project tests passing                                 |
 
 ---
 
 ## Holistic Roadmap (Active Horizon)
 
-### Phase 20: Macro Ecology (Regional Shifts)
-- **Goal:** Dynamic regional control using **A Priori Topological Graphing**.
-- **Key System:** `TerritoryManager` for graph-based faction control and supply routes.
+### Phase 25: Stress & Trauma (Social Fallout)
+- **Goal:** Party members suffer long-term stress effects from combat and loss.
+- **Key System:** `AfflictionSystem` hooking into `Chronicle` events.
 
-### Phase 21: Party & Companions (Group Systems)
-- **Goal:** Recruiting NPCs into a persistent, controllable party.
-- **Key System:** `PartyController` for tactical multi-unit command and collective stress.
-
-### Phase 22: Exploration Memory (Fog of War)
-- **Goal:** Persistent memory of explored chunks and discovered POIs.
-- **Key System:** `WorldMapState` and chunk bitmask persistence.
+### Phase 26: World Simulation (Economy)
+- **Goal:** Factions trade resources between macro-nodes; price shifts.
+- **Key System:** `EconomicManager` and supply-route graphing.
 
 ---
 
 ## What Exists Right Now
 
-### Phase 19 Implementation (Functional Overhaul)
+### Phase 24 Implementation (Narrative UI)
+- ✅ engine/narrative.py — `NarrativeGenerator` prose translation (v0.45).
+- ✅ ui/screens.py — `ChronicleUIState` for significance-filtered history (v0.45).
+- ✅ ui/screens.py — Refactored **Node-Based Dialogue System** (CoQ/CDDA inspired) (v0.45).
 
-- ✅ engine/loop.py — `apply_effect` and generic functional pipeline (v0.35).
-- ✅ engine/ecs/systems.py — `evaluate_formula` supports dice and `@stat_mod` (v0.35).
-- ✅ engine/ecs/systems.py — `resolve_effect_targets` for functional targeting patterns (v0.35).
-- ✅ engine/data_loader.py — New `EffectDef` and updated `AbilityDef` schemas (v0.35).
-- ✅ data/abilities — Migrated all core abilities to the new functional format.
+### Phase 23 Implementation (Exploration Memory)
+- ✅ world/exploration.py — `ExplorationManager` for persistent Fog of War (v0.42).
+- ✅ ui/screens.py — Optimized FOV rendering with restrictive algorithm (v0.42).
 
-### Phase 18 Implementation (Procedural Affixes)
+### Phase 22 Implementation (Party & Companions)
+- ✅ engine/ecs/components.py — `PartyMember` component (v0.40).
+- ✅ engine/ecs/systems.py — `recruit_npc_system` and following AI logic (v0.40).
 
-- ✅ engine/item_factory.py — `create_item` now rolls rarity and applies procedural prefixes/suffixes.
-- ✅ engine/data_loader.py — Added `AffixDef` schema and `get_affixes()` loader.
-
-### Phase 17 Implementation (Environmental Modifiers)
-
-- ✅ engine/ecs/systems.py — `environmental_modifier_system` for location-based effects.
+### Phase 21 Implementation (JIT Materialization)
+- ✅ engine/loop.py — `manage_entity_lifecycle` for lazy ECS instantiation (v0.38).
+- ✅ engine/loop.py — Recursive JSON-based serialization for persistent entities (v0.38).
 
 ---
 
 ## Recent Activity
 
-### Session: 2026-02-27 (Phase 19: Foundation Refactor)
+### Session: 2026-02-28 (Phases 23-24: Narrative & Exploration)
 
 **Completed:**
-
-- Implemented **Tag-Based Functional Overhaul (v0.35)**: Abilities are no longer hardcoded branches but collections of atomic, tagged effects.
-- Developed **Formula Engine**: magnitudes can now be dynamic strings like `1d8 + @might_mod`, evaluated at runtime.
-- Functionalized **Targeting**: patterns like `self`, `primary_target`, and `adjacent_all` are now reusable targeting logic.
-- Migrated **Basic Attack, Cleave, and Heal** to the new functional pipeline.
-- All 82 project tests passing.
+- Implemented **Fog of War**: Persistent exploration memory and optimized FOV rendering (centered on player).
+- Implemented **Node-Based Dialogue**: Branching conversation graphs with conditions, actions, and placeholders.
+- Implemented **Chronicle UI**: A human-readable history screen that filters the low-level event stream into meaningful prose.
+- Stabilized test suite: All 95 project tests passing.
 
 ---
 

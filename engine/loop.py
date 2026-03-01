@@ -53,9 +53,13 @@ from engine.ecs.components import (
     PendingAction,
     SocialAwareness,
     ActiveModifiers,
-    Modifier
+    Modifier,
+    Faction,
+    PartyMember
 )
 from world.generator import ChunkManager, Rumor
+from world.territory import TerritoryManager, TerritoryNode
+from world.exploration import ExplorationManager
 
 class SimulationLoop:
     """
@@ -73,6 +77,13 @@ class SimulationLoop:
         # Faction Standings (Collective Memory)
         self.faction_standing: Dict[str, float] = {} # faction_id -> reputation
         
+        # JIT Virtual Registry (Phase 21)
+        # Key: (chunk_x, chunk_y) -> List of serialized entity dicts
+        self.virtual_entities: Dict[Tuple[int, int], List[Dict[str, Any]]] = {}
+        
+        # Fog of War (Phase 23)
+        self.exploration = ExplorationManager()
+        
         # UI State Comms
         self.pending_social_popup: Optional[Dict[str, Any]] = None
         
@@ -86,7 +97,129 @@ class SimulationLoop:
         self.social_system = SocialStateSystem(self.bus, self.registry, self.faction_standing)
         
         # World Generation
-        self.world = ChunkManager(world_seed=random.randint(1, 100000))
+        _world_seed = random.randint(1, 100000)
+        self.territory = TerritoryManager(world_seed=_world_seed)
+        self.world = ChunkManager(world_seed=_world_seed, territory=self.territory)
+
+    def _serialize_entity(self, entity: tcod.ecs.Entity) -> Dict[str, Any]:
+        """Converts an ECS entity into a serializable dictionary."""
+        data = {}
+        
+        if EntityIdentity in entity.components:
+            id_comp = entity.components[EntityIdentity]
+            data["identity"] = {
+                "id": id_comp.entity_id,
+                "name": id_comp.name,
+                "archetype": id_comp.archetype,
+                "is_player": id_comp.is_player,
+                "template_origin": id_comp.template_origin
+            }
+
+        if ItemIdentity in entity.components:
+            item_id = entity.components[ItemIdentity]
+            data["item_identity"] = {
+                "id": item_id.entity_id,
+                "name": item_id.name,
+                "description": item_id.description
+            }
+
+        if Position in entity.components:
+            pos = entity.components[Position]
+            data["position"] = {"x": pos.x, "y": pos.y, "terrain": pos.terrain_type}
+
+        if CombatVitals in entity.components:
+            v = entity.components[CombatVitals]
+            data["vitals"] = {"hp": v.hp, "max_hp": v.max_hp, "is_dead": v.is_dead}
+
+        if CombatStats in entity.components:
+            s = entity.components[CombatStats]
+            data["stats"] = {"attack_bonus": s.attack_bonus, "damage_bonus": s.damage_bonus, "defense_bonus": s.defense_bonus}
+
+        if Attributes in entity.components:
+            data["attributes"] = entity.components[Attributes].scores.copy()
+
+        if Faction in entity.components:
+            data["faction"] = {"id": entity.components[Faction].faction_id}
+
+        if Disposition in entity.components:
+            d = entity.components[Disposition]
+            data["disposition"] = {"reputation": d.reputation, "last_gift_tick": d.last_gift_tick}
+
+        if SocialAwareness in entity.components:
+            sa = entity.components[SocialAwareness]
+            data["social_awareness"] = {"engagement_range": sa.engagement_range, "last_interaction_tick": sa.last_interaction_tick, "is_proactive": sa.is_proactive}
+
+        if PartyMember in entity.components:
+            data["party_member"] = {"leader_id": entity.components[PartyMember].leader_id}
+
+        # Inventory
+        carried = list(entity.relation_tags_many["IsCarrying"])
+        if carried:
+            data["inventory"] = [self._serialize_entity(item) for item in carried]
+            
+        return data
+
+    def _deserialize_entity(self, data: Dict[str, Any]) -> tcod.ecs.Entity:
+        """Restores an ECS entity from a dictionary."""
+        ent = self.registry.new_entity()
+        
+        if "identity" in data:
+            d = data["identity"]
+            ent.components[EntityIdentity] = EntityIdentity(
+                entity_id=d["id"], name=d["name"], archetype=d["archetype"], 
+                is_player=d.get("is_player", False), template_origin=d.get("template_origin")
+            )
+        
+        if "item_identity" in data:
+            d = data["item_identity"]
+            ent.components[ItemIdentity] = ItemIdentity(entity_id=d["id"], name=d["name"], description=d["description"])
+
+        if "position" in data:
+            d = data["position"]
+            ent.components[Position] = Position(x=d["x"], y=d["y"], terrain_type=d.get("terrain", "floor"))
+
+        if "vitals" in data:
+            d = data["vitals"]
+            v = CombatVitals(hp=d["hp"], max_hp=d["max_hp"])
+            v.is_dead = d.get("is_dead", False)
+            ent.components[CombatVitals] = v
+
+        if "stats" in data:
+            d = data["stats"]
+            ent.components[CombatStats] = CombatStats(attack_bonus=d["attack_bonus"], damage_bonus=d["damage_bonus"], defense_bonus=d["defense_bonus"])
+
+        if "attributes" in data:
+            ent.components[Attributes] = Attributes(scores=data["attributes"])
+
+        if "faction" in data:
+            ent.components[Faction] = Faction(faction_id=data["faction"]["id"])
+
+        if "disposition" in data:
+            d = data["disposition"]
+            ent.components[Disposition] = Disposition(reputation=d["reputation"], last_gift_tick=d["last_gift_tick"])
+
+        if "social_awareness" in data:
+            d = data["social_awareness"]
+            ent.components[SocialAwareness] = SocialAwareness(
+                engagement_range=d["engagement_range"], 
+                last_interaction_tick=d["last_interaction_tick"],
+                is_proactive=d.get("is_proactive", False)
+            )
+
+        if "party_member" in data:
+            ent.components[PartyMember] = PartyMember(leader_id=data["party_member"]["leader_id"])
+            # Note: The 'InPartyWith' relation needs to be restored after all entities are loaded
+            # if we want to link to the player object. 
+            # For Phase 22, we'll handle this in a post-load pass if needed, 
+            # but for now ai_decision_system just checks for the component.
+
+        # Restore inventory
+        if "inventory" in data:
+            for idata in data["inventory"]:
+                item = self._deserialize_entity(idata)
+                ent.relation_tags_many["IsCarrying"].add(item)
+                
+        return ent
 
     
     def open_session(self) -> None:
@@ -98,162 +231,192 @@ class SimulationLoop:
 
     def save_session(self, snapshot_path: Optional[Path] = None) -> None:
         """
-        Saves the critical world state to TOML.
+        Saves the critical world state to JSON.
         """
+        import json
         if snapshot_path is None:
-            snapshot_path = Path("sessions/spatial_snapshot.toml")
+            snapshot_path = Path("sessions/spatial_snapshot.json")
             
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         
-        lines = []
-        lines.append("[world]")
-        lines.append(f'era = "{self.clock.era}"')
-        lines.append(f"cycle = {self.clock.cycle}")
-        lines.append(f"tick = {self.clock.tick}")
-        lines.append(f"world_seed = {self.world.world_seed}")
-        lines.append("")
+        # Prepare territory overrides
+        t_overrides = {}
+        if hasattr(self, "territory") and self.territory:
+            for (cx, cy), node in self.territory.overrides.items():
+                t_overrides[f"{cx}_{cy}"] = {"faction_id": node.faction_id, "poi_type": node.poi_type}
 
-        lines.append("[faction_standing]")
-        for fid, val in self.faction_standing.items():
-            lines.append(f'{fid} = {val:.4f}')
-        lines.append("")
-
-        # Helper to serialize an entity
-        def serialize_ent(entity: tcod.ecs.Entity, table_name: str) -> List[str]:
-            ent_lines = []
-            
-            # Components
-            if EntityIdentity in entity.components:
-                id_comp = entity.components[EntityIdentity]
-                ent_lines.append(f'id = {id_comp.entity_id}')
-                ent_lines.append(f'name = "{id_comp.name}"')
-                ent_lines.append(f'archetype = "{id_comp.archetype}"')
-                ent_lines.append(f'is_player = {"true" if id_comp.is_player else "false"}')
-                if id_comp.template_origin:
-                    ent_lines.append(f'template_origin = "{id_comp.template_origin}"')
-
-            if ItemIdentity in entity.components:
-                item_id = entity.components[ItemIdentity]
-                ent_lines.append(f'item_id = "{item_id.entity_id}"')
-                ent_lines.append(f'item_name = "{item_id.name}"')
-                ent_lines.append(f'item_description = "{item_id.description}"')
-
-            if Position in entity.components:
-                pos = entity.components[Position]
-                ent_lines.append(f'x = {pos.x}')
-                ent_lines.append(f'y = {pos.y}')
-                ent_lines.append(f'terrain = "{pos.terrain_type}"')
-
-            if CombatVitals in entity.components:
-                v = entity.components[CombatVitals]
-                ent_lines.append(f'hp = {v.hp}')
-                ent_lines.append(f'max_hp = {v.max_hp}')
-
-            if Attributes in entity.components:
-                ent_lines.append(f'[{table_name}.attributes]')
-                for k, val in entity.components[Attributes].scores.items():
-                    ent_lines.append(f'{k} = {val}')
-                ent_lines.append("")
-
-            # Inventory
-            carried = list(entity.relation_tags_many["IsCarrying"])
-            if carried:
-                for item in carried:
-                    ent_lines.append(f'[[{table_name}.inventory]]')
-                    ent_lines.extend(serialize_ent(item, f"{table_name}.inventory"))
-            
-            return ent_lines
-
-        # Save all entities with Position (World-level)
+        # Prepare active entities (recursive)
+        entities = []
         for entity in self.registry.Q.all_of(components=[Position]):
-            # 1. Skip items inside containers
+            # Skip items inside containers (they are serialized as part of the container)
             if any(entity in parent.relation_tags_many["IsCarrying"] for parent in self.registry.Q.all_of(relations=[("IsCarrying", ...)])):
                 continue
             
-            # 2. Context Collapse: Cull ephemeral random encounters
+            # Context Collapse: Cull ephemeral random encounters
             if EntityIdentity in entity.components:
                 ident = entity.components[EntityIdentity]
                 if not ident.is_player and ident.archetype in ["Skirmisher", "Minion"]:
                     continue
                 
-            lines.append("[[entities]]")
-            lines.extend(serialize_ent(entity, "entities"))
-            lines.append("")
+            entities.append(self._serialize_entity(entity))
+
+        data = {
+            "world": {
+                "era": self.clock.era,
+                "cycle": self.clock.cycle,
+                "tick": self.clock.tick,
+                "world_seed": self.world.world_seed
+            },
+            "faction_standing": self.faction_standing,
+            "territory_overrides": t_overrides,
+            "virtual_entities": {f"{k[0]}_{k[1]}": v for k, v in self.virtual_entities.items()},
+            "exploration": self.exploration.get_state(),
+            "entities": entities
+        }
             
         with open(snapshot_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(lines))
+            json.dump(data, f, indent=2)
             
     def resume_session(self, snapshot_path: Optional[Path] = None) -> None:
         """Restores the world from a snapshot."""
-        import tomllib
+        import json
         
         if snapshot_path is None:
-            snapshot_path = Path("sessions/spatial_snapshot.toml")
+            snapshot_path = Path("sessions/spatial_snapshot.json")
             
         if not snapshot_path.exists():
             raise FileNotFoundError(f"Cannot resume, missing {snapshot_path}")
             
-        with open(snapshot_path, "rb") as f:
-            data = tomllib.load(f)
+        with open(snapshot_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
             
         # Restore world
         wdata = data.get("world", {})
         self.clock = GameTimestamp(era=wdata.get("era", "Recent"), cycle=wdata.get("cycle", 1), tick=wdata.get("tick", 1))
         self.inscriber.clock = self.clock
-        self.world = ChunkManager(world_seed=wdata.get("world_seed", random.randint(1, 10000)))
+        _world_seed = wdata.get("world_seed", random.randint(1, 10000))
+        self.territory = TerritoryManager(world_seed=_world_seed)
+        
+        # Restore territory overrides
+        tdata = data.get("territory_overrides", {})
+        for key, val in tdata.items():
+            cx, cy = map(int, key.split("_"))
+            faction_id = val["faction_id"]
+            poi_type = val["poi_type"]
+            node_id = f"node_{cx // TerritoryManager.MACRO_REGION_SIZE}_{cy // TerritoryManager.MACRO_REGION_SIZE}"
+            self.territory.overrides[(cx, cy)] = TerritoryNode(
+                id=node_id, chunk_x=cx, chunk_y=cy, poi_type=poi_type, faction_id=faction_id
+            )
+            
+        self.world = ChunkManager(world_seed=_world_seed, territory=self.territory)
+        
+        # Restore virtual entities
+        v_data = data.get("virtual_entities", {})
+        self.virtual_entities = {}
+        for key, ents in v_data.items():
+            cx, cy = map(int, key.split("_"))
+            self.virtual_entities[(cx, cy)] = ents
+        
+        # Restore Fog of War
+        if "exploration" in data:
+            self.exploration.load_state(data["exploration"])
         
         # Restore Faction Standings
         self.faction_standing = data.get("faction_standing", {})
         
         # Restore registry
         self.registry = tcod.ecs.Registry()
-        
-        def deserialize_ent(edata: Dict[str, Any]) -> tcod.ecs.Entity:
-            ent = self.registry.new_entity()
-            
-            if "id" in edata:
-                ent.components[EntityIdentity] = EntityIdentity(
-                    entity_id=edata["id"],
-                    name=edata["name"],
-                    archetype=edata["archetype"],
-                    is_player=edata.get("is_player", False),
-                    template_origin=edata.get("template_origin")
-                )
-            
-            if "item_id" in edata:
-                ent.components[ItemIdentity] = ItemIdentity(
-                    entity_id=edata["item_id"],
-                    name=edata["item_name"],
-                    description=edata["item_description"]
-                )
-
-            if "x" in edata:
-                ent.components[Position] = Position(x=edata["x"], y=edata["y"], terrain_type=edata.get("terrain", "floor"))
-
-            if "hp" in edata:
-                ent.components[CombatVitals] = CombatVitals(hp=edata["hp"], max_hp=edata["max_hp"])
-                ent.components[CombatStats] = CombatStats()
-                ent.components[ActionEconomy] = ActionEconomy()
-                ent.components[MovementStats] = MovementStats()
-
-            if "attributes" in edata:
-                ent.components[Attributes] = Attributes(scores=edata["attributes"])
-
-            for idata in edata.get("inventory", []):
-                item = deserialize_ent(idata)
-                ent.relation_tags_many["IsCarrying"].add(item)
-                
-            return ent
-
         for edata in data.get("entities", []):
-            deserialize_ent(edata)
+            self._deserialize_entity(edata)
             
         self.open_session()
+
+    def manage_entity_lifecycle(self, player_x: int, player_y: int) -> None:
+        """
+        JIT Materialization (Phase 21):
+        - Dematerializes entities far from the player into virtual_entities.
+        - Materializes chunks near the player from virtual_entities or spawner.
+        """
+        chunk_size = self.world.chunk_size
+        px_chunk, py_chunk = player_x // chunk_size, player_y // chunk_size
+        
+        CULL_DISTANCE = 3 # chunks
+        MATERIALIZATION_DISTANCE = 1 # chunks
+        
+        # 1. Dematerialization: Cull distant entities
+        to_cull = []
+        for entity in self.registry.Q.all_of(components=[Position, EntityIdentity]):
+            ident = entity.components[EntityIdentity]
+            if ident.is_player: continue
+            
+            pos = entity.components[Position]
+            ex_chunk, ey_chunk = pos.x // chunk_size, pos.y // chunk_size
+            
+            dist = max(abs(ex_chunk - px_chunk), abs(ey_chunk - py_chunk))
+            if dist >= CULL_DISTANCE:
+                # Cull ephemeral random encounters without state
+                # Context Collapse: Cull skirmishers/minions unless they have significant delta
+                if ident.archetype in ["Skirmisher", "Minion"]:
+                    # Only keep if they were damaged or have items
+                    vitals = entity.components.get(CombatVitals)
+                    has_delta = vitals and vitals.hp < vitals.max_hp
+                    has_items = len(list(entity.relation_tags_many["IsCarrying"])) > 0
+                    if not (has_delta or has_items):
+                        to_cull.append((entity, None))
+                        continue
+                
+                to_cull.append((entity, (ex_chunk, ey_chunk)))
+
+        for entity, chunk_key in to_cull:
+            if chunk_key:
+                serialized = self._serialize_entity(entity)
+                if chunk_key not in self.virtual_entities:
+                    self.virtual_entities[chunk_key] = []
+                self.virtual_entities[chunk_key].append(serialized)
+            
+            # Remove from active registry
+            # We clear() to destroy the entity ID and components in this registry
+            entity.clear()
+
+        # 2. Materialization: Restore nearby chunks
+        for dy in range(-MATERIALIZATION_DISTANCE, MATERIALIZATION_DISTANCE + 1):
+            for dx in range(-MATERIALIZATION_DISTANCE, MATERIALIZATION_DISTANCE + 1):
+                mx, my = px_chunk + dx, py_chunk + dy
+                chunk = self.world.get_chunk(mx, my)
+                
+                # Check if we need to materialize
+                # We use a flag 'is_materialized' in the chunk_data (temporary runtime state)
+                if not chunk.get("is_materialized"):
+                    # a) Restore from virtual registry
+                    if (mx, my) in self.virtual_entities:
+                        for edata in self.virtual_entities[(mx, my)]:
+                            self._deserialize_entity(edata)
+                        del self.virtual_entities[(mx, my)]
+                    
+                    # b) If never spawned, trigger initial spawn
+                    elif not chunk.get("is_spawned"):
+                        from engine.spawner import spawn_bespoke_chunk, spawn_wilderness_chunk
+                        if chunk["terrain"] == "bespoke":
+                            spawn_bespoke_chunk(self.registry, chunk)
+                        else:
+                            spawn_wilderness_chunk(self.registry, chunk)
+                    
+                    chunk["is_materialized"] = True
 
     def tick(self) -> None:
         """Advance the simulation by one engine tick."""
         self.clock = self.clock.advance_tick()
         self.inscriber.clock = self.clock
+
+        # JIT Management (Phase 21)
+        # Every 10 ticks, check lifecycle
+        if self.clock.tick % 10 == 0:
+            px, py = 0, 0
+            for ent in self.registry.Q.all_of(components=[EntityIdentity, Position]):
+                if ent.components[EntityIdentity].is_player:
+                    px, py = ent.components[Position].x, ent.components[Position].y
+                    break
+            self.manage_entity_lifecycle(px, py)
 
         # Modifier Lifecycle (Decay old effects)
         from engine.ecs.systems import modifier_tick_system
@@ -347,15 +510,9 @@ class SimulationLoop:
         pos.y = new_y
         pos.terrain_type = tile_type
         
-        chunk_x = new_x // self.world.chunk_size
-        chunk_y = new_y // self.world.chunk_size
-        chunk = self.world.get_chunk(chunk_x, chunk_y)
-        if not chunk.get("is_spawned"):
-            from engine.spawner import spawn_bespoke_chunk, spawn_wilderness_chunk
-            if chunk["terrain"] == "bespoke":
-                spawn_bespoke_chunk(self.registry, chunk)
-            else:
-                spawn_wilderness_chunk(self.registry, chunk)
+        # JIT Materialization (Phase 21)
+        if EntityIdentity in entity.components and entity.components[EntityIdentity].is_player:
+            self.manage_entity_lifecycle(new_x, new_y)
 
     def interact_at(self, actor: tcod.ecs.Entity, x: int, y: int) -> Optional[Dict[str, Any]]:
         from engine.ecs.systems import interaction_system

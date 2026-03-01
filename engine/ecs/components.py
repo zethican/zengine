@@ -133,8 +133,21 @@ class BlocksMovement:
     pass
 
 @dataclass
+class DialogueOption:
+    text: str
+    target_node: str = "exit"
+    condition: Optional[str] = None
+    action: Optional[str] = None
+
+@dataclass
+class DialogueNode:
+    text: str
+    options: List[DialogueOption] = field(default_factory=list)
+
+@dataclass
 class DialogueProfile:
-    greetings: Dict[str, str] = field(default_factory=dict) # "friendly", "hostile", "neutral"
+    nodes: Dict[str, DialogueNode] = field(default_factory=dict)
+    current_node_id: str = "start"
     rumor_response: str = "I heard something about..."
 
 @dataclass
@@ -146,6 +159,10 @@ class SocialAwareness:
     engagement_range: int = 3
     last_interaction_tick: int = -2000
     is_proactive: bool = False # For Rumor/Trade carriers
+
+@dataclass
+class PartyMember:
+    leader_id: int # EntityIdentity.entity_id of the leader
 
 @dataclass
 class Modifier:

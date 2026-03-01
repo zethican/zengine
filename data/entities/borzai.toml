@@ -11,6 +11,46 @@ might = 10
 finesse = 12
 resolve = 16
 
+[dialogue]
+current_node_id = "start"
+rumor_response = "They say the Ash Walkers are moving south..."
+
+[dialogue.nodes.start]
+text = "The Ash Walkers watch you, [PlayerName]. What do you want in these wastes?"
+[[dialogue.nodes.start.options]]
+text = "I'm looking for news."
+target_node = "rumor"
+action = "rumor"
+
+[[dialogue.nodes.start.options]]
+text = "I have items to trade."
+target_node = "trade"
+action = "trade"
+
+[[dialogue.nodes.start.options]]
+text = "Why do you stay here?"
+target_node = "lore"
+
+[[dialogue.nodes.start.options]]
+text = "Join my journey."
+target_node = "start"
+condition = "rep > 0.6"
+action = "recruit"
+
+[[dialogue.nodes.start.options]]
+text = "I'll be going now."
+target_node = "exit"
+
+[dialogue.nodes.lore]
+text = "The ash is our mother. It chokes the weak and hides the strong. Do you feel strong, [PlayerName]?"
+[[dialogue.nodes.lore.options]]
+text = "I'm strong enough."
+target_node = "start"
+
+[[dialogue.nodes.lore.options]]
+text = "Goodbye."
+target_node = "exit"
+
 [tags]
 is_humanoid = true
 is_scavenger = true

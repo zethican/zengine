@@ -35,6 +35,21 @@ class AbilityDef(BaseModel):
     target_type: str # UI primary target: "self", "single", "direction"
     effects: List[EffectDef] = Field(default_factory=list)
 
+class DialogueOptionDef(BaseModel):
+    text: str
+    target_node: str = "exit"
+    condition: Optional[str] = None
+    action: Optional[str] = None
+
+class DialogueNodeDef(BaseModel):
+    text: str
+    options: List[DialogueOptionDef] = Field(default_factory=list)
+
+class DialogueProfileDef(BaseModel):
+    nodes: Dict[str, DialogueNodeDef] = Field(default_factory=list)
+    current_node_id: str = "start"
+    rumor_response: Optional[str] = None
+
 class EntityDef(BaseModel):
     model_config = ConfigDict(frozen=True)
     
@@ -46,7 +61,7 @@ class EntityDef(BaseModel):
     abilities: List[str]
     attributes: Dict[str, int] = Field(default_factory=dict)
     inventory: List[str] = Field(default_factory=list)
-    dialogue: Optional[Dict[str, Any]] = None
+    dialogue: Optional[DialogueProfileDef] = None
 
 class RumorDef(BaseModel):
     model_config = ConfigDict(frozen=True)

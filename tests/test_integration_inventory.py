@@ -50,6 +50,7 @@ def test_equipped_weapon_increases_damage_integration():
         chronicle_path = Path(tmpdir) / "chronicle.jsonl"
         sim = SimulationLoop(chronicle_path=chronicle_path)
         
+        from engine.ecs.components import Attributes
         # Setup Hero with 0 base damage
         hero = sim.registry.new_entity()
         hero.components[EntityIdentity] = EntityIdentity(entity_id=1, name="Aric", archetype="Standard", is_player=True)
@@ -57,6 +58,7 @@ def test_equipped_weapon_increases_damage_integration():
         hero.components[ActionEconomy] = ActionEconomy(ap_pool=100)
         hero.components[Anatomy] = Anatomy(available_slots=["hand"])
         hero.components[CombatStats] = CombatStats(attack_bonus=100, damage_bonus=0) # Guaranteed hit
+        hero.components[Attributes] = Attributes(scores={"might": 10, "resolve": 10})
         
         # Setup Foe
         foe = sim.registry.new_entity()
@@ -76,8 +78,10 @@ def test_equipped_weapon_increases_damage_integration():
         
         # basic_attack damage is 1d6 + @might_mod + effective_stats.damage_bonus
         # With might_mod=0 and weapon=10, expected: 1d6 + 10 = 11..16 damage.
-
-        sim.invoke_ability_ecs(hero, "basic_attack", foe)
+        
+        from unittest.mock import patch
+        with patch('engine.loop.resolve_roll', return_value={"total": 50, "is_crit": False, "is_fumble": False, "rolls": [5, 5]}):
+            sim.invoke_ability_ecs(hero, "basic_attack", foe)
 
         hp_lost = 100 - foe.components[CombatVitals].hp
         assert 11 <= hp_lost <= 16, f"Expected 11-16 damage, but foe lost {hp_lost} HP"

@@ -13,8 +13,8 @@ def test_bespoke_chunk_faction_assignment():
         
         # 1. Find a bespoke chunk
         cx, cy = -1, -1
-        for y in range(4):
-            for x in range(4):
+        for y in range(40):
+            for x in range(40):
                 c = sim.world.get_chunk(x, y)
                 if c["terrain"] == "bespoke":
                     cx, cy = x, y
@@ -25,7 +25,7 @@ def test_bespoke_chunk_faction_assignment():
         chunk = sim.world.get_chunk(cx, cy)
         fid = chunk.get("faction_id")
         assert fid is not None
-        assert fid.startswith("village_")
+        assert fid.startswith("faction_")
         
         # 2. Trigger Spawning
         # Move player to chunk to trigger spawn
@@ -86,7 +86,7 @@ def test_wilderness_pack_faction_assignment():
         assert cx != -1
         fid = target_chunk.get("faction_id")
         assert fid is not None
-        assert fid.startswith("warband_")
+        assert fid.startswith("faction_")
         
         # 2. Force spawn (since it's probabilistic in tick/move)
         from engine.spawner import spawn_wilderness_chunk

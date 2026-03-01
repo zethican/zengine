@@ -34,7 +34,8 @@ from engine.ecs.components import (
     BlocksMovement,
     SocialAwareness,
     ActiveModifiers,
-    Modifier
+    Modifier,
+    PartyMember
 )
 from engine.combat import (
     EventBus, 
@@ -115,6 +116,27 @@ def interaction_system(registry: tcod.ecs.Registry, actor: tcod.ecs.Entity, x: i
             
     return None
 
+def recruit_npc_system(player: tcod.ecs.Entity, npc: tcod.ecs.Entity) -> bool:
+    """Recruits an NPC into the player's party."""
+    if EntityIdentity not in player.components or EntityIdentity not in npc.components:
+        return False
+        
+    p_id = player.components[EntityIdentity].entity_id
+    
+    # Set PartyMember component
+    npc.components[PartyMember] = PartyMember(leader_id=p_id)
+    
+    # Update Relation for easy querying
+    npc.relation_tag["InPartyWith"] = player
+    
+    # Update AI Profile to be attracted to player
+    if BehaviorProfile in npc.components:
+        profile = npc.components[BehaviorProfile]
+        profile.affinity_weight = 2.0 # Strong attraction
+        profile.threat_weight = 0.0   # No fear of leader
+        
+    return True
+
 def get_adjusted_value(item: tcod.ecs.Entity, standing: float, is_npc_item: bool) -> int:
     """Calculates item value adjusted by faction standing and buyer/seller role."""
     if ItemIdentity not in item.components:
@@ -159,6 +181,11 @@ def ai_decision_system(registry: tcod.ecs.Registry, ai_sys: "InfluenceMapSystem"
             if dist <= soc.engagement_range and current_tick - soc.last_interaction_tick > 2000:
                 # Force high affinity for player location
                 ai_sys.add_affinity_seed(px, py, weight=10.0) # Very High pull
+        
+        # 0.5 Party Following (Phase 22)
+        if PartyMember in entity.components:
+            # Always attract to player if in party
+            ai_sys.add_affinity_seed(px, py, weight=20.0) # Maximum pull
                 
         # Update maps for THIS NPC (so it is not its own seed)
         ai_sys.update(registry, px, py, viewer=entity)

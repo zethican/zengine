@@ -260,13 +260,16 @@ class BSPDungeonGenerator:
             "tiles": self.tiles
         }
 
+from world.territory import TerritoryManager, TerritoryNode
+
 class ChunkManager:
     """
     Manages the generation and caching of world chunks.
     """
-    def __init__(self, world_seed: int, chunk_size: int = 20):
+    def __init__(self, world_seed: int, chunk_size: int = 20, territory: Optional[TerritoryManager] = None):
         self.world_seed = world_seed
         self.chunk_size = chunk_size
+        self.territory = territory
         self.generated_chunks: Dict[ChunkKey, Dict[str, Any]] = {}
         self.rumor_queue: List[Rumor] = []
         self.bespoke_templates = [
@@ -299,7 +302,7 @@ class ChunkManager:
         """
         Deterministic generation logic.
         Resolves rumors if conditions are met.
-        Implements Regional Blueprint (Checkerboard Bespoke Content).
+        Implements Regional Blueprint using A Priori Topological Graphing (TerritoryManager).
         """
         # Create a deterministic seed for this specific chunk
         chunk_seed = hash((x, y, self.world_seed))
@@ -319,81 +322,111 @@ class ChunkManager:
             "population": biome_pop,
             "pol": None,
             "terrain": "wilderness",
-            "faction_id": f"warband_{x}_{y}",
+            "faction_id": None,
             "is_spawned": False
         }
         
-        # 1. Regional Blueprint (Points of Light)
-        # Determine if this chunk is a POI based on region grid (4x4 chunks)
-        region_x = x // 4
-        region_y = y // 4
-        
-        region_rng = random.Random(hash((region_x, region_y, self.world_seed)))
-        poi_count = region_rng.randint(1, 2)
+        # Determine controlling faction from territory graph
+        if self.territory:
+            chunk_data["faction_id"] = self.territory.get_controlling_faction(x, y)
+        else:
+            chunk_data["faction_id"] = f"warband_{x}_{y}"
+            
+        # 1. Regional Blueprint (Points of Light via Territory Graph)
+        territory_node = None
+        if self.territory:
+            territory_node = self.territory.get_node_at(x, y)
+            
+        # For legacy compatibility or testing without territory manager, fallback to stochastic
         poi_chunks = []
-        for _ in range(poi_count):
-            lx = region_rng.randint(0, 3)
-            ly = region_rng.randint(0, 3)
-            poi_chunks.append((region_x * 4 + lx, region_y * 4 + ly))
+        if not self.territory:
+            region_x = x // 4
+            region_y = y // 4
+            region_rng = random.Random(hash((region_x, region_y, self.world_seed)))
+            poi_count = region_rng.randint(1, 2)
+            for _ in range(poi_count):
+                lx = region_rng.randint(0, 3)
+                ly = region_rng.randint(0, 3)
+                poi_chunks.append((region_x * 4 + lx, region_y * 4 + ly))
+        
+        is_poi = territory_node is not None or (not self.territory and (x, y) in poi_chunks)
             
-        if (x, y) in poi_chunks:
-            chunk_data["terrain"] = "bespoke"
-            # Regional anchor for consistent faction_id across settlement
-            anchor_x, anchor_y = poi_chunks[0]
-            chunk_data["faction_id"] = f"village_{anchor_x}_{anchor_y}"
+        if is_poi:
+            # Determine type
+            poi_type = territory_node.poi_type if territory_node else "settlement"
             
-            # Use SettlementPlanner to grow the area
-            planned_modules = self.planner.plan_settlement("village", self.chunk_size)
-            
-            bespoke_tiles = {}
-            spawns = []
-            roads = []
-            
-            mid = self.chunk_size // 2
-            
-            for mdef, mx, my in planned_modules:
-                m_lines = mdef.map.strip().split("\n")
+            if poi_type == "settlement":
+                chunk_data["terrain"] = "bespoke"
+                if territory_node:
+                    chunk_data["faction_id"] = territory_node.faction_id
+                else:
+                    anchor_x, anchor_y = poi_chunks[0]
+                    chunk_data["faction_id"] = f"village_{anchor_x}_{anchor_y}"
                 
-                # Stamp tiles
-                door_lx, door_ly = -1, -1
-                for ly, line in enumerate(m_lines):
-                    for lx, char in enumerate(line):
-                        tx, ty = mx + lx, my + ly
-                        
-                        ttype = "floor"
-                        if char == "#": ttype = "wall"
-                        elif char == "~": ttype = "water"
-                        elif char == "+":
-                            ttype = "floor"
-                            door_lx, door_ly = tx, ty
-                            spawns.append({"type": "door", "lx": tx, "ly": ty})
-                        
-                        bespoke_tiles[(tx, ty)] = ttype
+                # Use SettlementPlanner to grow the area
+                planned_modules = self.planner.plan_settlement("village", self.chunk_size)
                 
-                # Add spawns from module
-                for sdef in mdef.spawns:
-                    s_copy = sdef.copy()
-                    s_copy["lx"] += mx
-                    s_copy["ly"] += my
-                    spawns.append(s_copy)
+                bespoke_tiles = {}
+                spawns = []
+                roads = []
+                
+                mid = self.chunk_size // 2
+                
+                for mdef, mx, my in planned_modules:
+                    m_lines = mdef.map.strip().split("\n")
                     
-                # Stitch: Road from Door to Center
-                if door_lx != -1:
-                    # Simple L-path to center (mid, mid)
-                    curr_x, curr_y = door_lx, door_ly
-                    # 1. Horizontal to mid
-                    step = 1 if mid > curr_x else -1
-                    for rx in range(curr_x, mid + step, step):
-                        roads.append((rx, curr_y))
-                    # 2. Vertical to mid
-                    step = 1 if mid > curr_y else -1
-                    for ry in range(curr_y, mid + step, step):
-                        roads.append((mid, ry))
-
-            chunk_data["bespoke_tiles"] = bespoke_tiles
-            chunk_data["spawns"] = spawns
-            chunk_data["roads"] = roads
-            return chunk_data
+                    # Stamp tiles
+                    door_lx, door_ly = -1, -1
+                    for ly, line in enumerate(m_lines):
+                        for lx, char in enumerate(line):
+                            tx, ty = mx + lx, my + ly
+                            
+                            ttype = "floor"
+                            if char == "#": ttype = "wall"
+                            elif char == "~": ttype = "water"
+                            elif char == "+":
+                                ttype = "floor"
+                                door_lx, door_ly = tx, ty
+                                spawns.append({"type": "door", "lx": tx, "ly": ty})
+                            
+                            bespoke_tiles[(tx, ty)] = ttype
+                    
+                    # Add spawns from module
+                    for sdef in mdef.spawns:
+                        s_copy = sdef.copy()
+                        s_copy["lx"] += mx
+                        s_copy["ly"] += my
+                        spawns.append(s_copy)
+                        
+                    # Stitch: Road from Door to Center
+                    if door_lx != -1:
+                        # Simple L-path to center (mid, mid)
+                        curr_x, curr_y = door_lx, door_ly
+                        # 1. Horizontal to mid
+                        step = 1 if mid > curr_x else -1
+                        for rx in range(curr_x, mid + step, step):
+                            roads.append((rx, curr_y))
+                        # 2. Vertical to mid
+                        step = 1 if mid > curr_y else -1
+                        for ry in range(curr_y, mid + step, step):
+                            roads.append((mid, ry))
+    
+                chunk_data["bespoke_tiles"] = bespoke_tiles
+                chunk_data["spawns"] = spawns
+                chunk_data["roads"] = roads
+                return chunk_data
+            elif poi_type == "dungeon":
+                chunk_data["terrain"] = "structured_dungeon"
+                dungeon_gen = BSPDungeonGenerator(width=40, height=40, seed=chunk_seed)
+                chunk_data["dungeon_layout"] = dungeon_gen.generate()
+                return chunk_data
+            elif poi_type == "encampment":
+                chunk_data["terrain"] = "wilderness" # Encampments are wilderness with specific spawns
+                # Add a campfire in the middle
+                chunk_data["bespoke_tiles"] = {(self.chunk_size//2, self.chunk_size//2): "floor"}
+                chunk_data["spawns"] = [{"type": "prop", "id": "campfire", "lx": self.chunk_size//2, "ly": self.chunk_size//2}]
+                chunk_data["roads"] = []
+                return chunk_data
 
         # 2. Road Connectivity (Visual Breadcrumbs)
         # If adjacent to a POI chunk, 50% chance of a road cutting through center
@@ -402,18 +435,23 @@ class ChunkManager:
         # Check Neighbors
         for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]:
             nx, ny = x + dx, y + dy
-            # We need to know if (nx, ny) IS a POI chunk without generating it
-            # We repeat the regional logic for the neighbor
-            rn_x, rn_y = nx // 4, ny // 4
-            rn_rng = random.Random(hash((rn_x, rn_y, self.world_seed)))
-            pn_count = rn_rng.randint(1, 2)
-            pn_chunks = []
-            for _ in range(pn_count):
-                lnx = rn_rng.randint(0, 3)
-                lny = rn_rng.randint(0, 3)
-                pn_chunks.append((rn_x * 4 + lnx, rn_y * 4 + lny))
             
-            if (nx, ny) in pn_chunks and rng.random() < 0.5:
+            # Check if neighbor is POI
+            is_neighbor_poi = False
+            if self.territory:
+                is_neighbor_poi = self.territory.get_node_at(nx, ny) is not None
+            else:
+                rn_x, rn_y = nx // 4, ny // 4
+                rn_rng = random.Random(hash((rn_x, rn_y, self.world_seed)))
+                pn_count = rn_rng.randint(1, 2)
+                pn_chunks = []
+                for _ in range(pn_count):
+                    lnx = rn_rng.randint(0, 3)
+                    lny = rn_rng.randint(0, 3)
+                    pn_chunks.append((rn_x * 4 + lnx, rn_y * 4 + lny))
+                is_neighbor_poi = (nx, ny) in pn_chunks
+            
+            if is_neighbor_poi and rng.random() < 0.5:
                 # Add a road path from center to the edge of the neighbor
                 mid = self.chunk_size // 2
                 if dx == -1: # West
@@ -437,6 +475,7 @@ class ChunkManager:
                 chunk_data["dungeon_layout"] = dungeon_gen.generate()
             
         return chunk_data
+
 
     def get_tile(self, global_x: int, global_y: int) -> str:
         """Returns the specific string terrain type for a given coordinate."""

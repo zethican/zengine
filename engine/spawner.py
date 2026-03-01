@@ -67,9 +67,20 @@ def spawn_npc(registry: tcod.ecs.Registry, entity_id: str, x: int, y: int, name_
         )
         
         # Dialogue
-        from engine.ecs.components import DialogueProfile
+        from engine.ecs.components import DialogueProfile, DialogueNode, DialogueOption
         if entity_def.dialogue:
-            entity.components[DialogueProfile] = DialogueProfile(**entity_def.dialogue)
+            d_def = entity_def.dialogue
+            profile = DialogueProfile(current_node_id=d_def.current_node_id)
+            if d_def.rumor_response:
+                profile.rumor_response = d_def.rumor_response
+                
+            for node_id, n_def in d_def.nodes.items():
+                options = [
+                    DialogueOption(text=o.text, target_node=o.target_node, condition=o.condition, action=o.action)
+                    for o in n_def.options
+                ]
+                profile.nodes[node_id] = DialogueNode(text=n_def.text, options=options)
+            entity.components[DialogueProfile] = profile
         else:
             entity.components[DialogueProfile] = DialogueProfile()
         

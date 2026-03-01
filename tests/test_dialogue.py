@@ -18,28 +18,23 @@ def test_dialogue_and_rumor_sharing():
         player.components[Position] = Position(x=5, y=5)
         
         # 2. Setup NPC with custom greeting
+        from engine.ecs.components import DialogueNode
         npc = spawn_npc(sim.registry, "hero_standard", 6, 5) # Use hero_standard as base
         npc.components[EntityIdentity].name = "Old Man"
         npc.components[DialogueProfile] = DialogueProfile(
-            greetings={"neutral": "Stay a while and listen."}
+            nodes={"start": DialogueNode(text="Stay a while and listen.")}
         )
-        
+
         # 3. Add a Rumor to the world
         sim.world.add_rumor(Rumor(id="test_poi", name="Forgotten Shrine", pol_type="prefab", significance=5))
-        
+
         sim.open_session()
-        
+
         # 4. Interact (Talk)
-        from ui.states import Engine
-        from ui.screens import DialogueState
-        
-        # We need a mock Engine to test state changes? 
-        # Actually, let's just test the logic in SimulationLoop and DialogueState directly.
-        
-        # Check greeting
+
+        # Check text
         profile = npc.components[DialogueProfile]
-        assert profile.greetings["neutral"] == "Stay a while and listen."
-        
+        assert profile.nodes["start"].text == "Stay a while and listen."
         # Check rumor sharing
         rumor_text = sim.share_rumor(player, npc)
         assert "Forgotten Shrine" in rumor_text

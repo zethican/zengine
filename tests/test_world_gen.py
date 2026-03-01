@@ -11,8 +11,8 @@ def test_bespoke_chunk_modular_assembly():
     
     # Find a bespoke chunk
     target_chunk = None
-    for y in range(4):
-        for x in range(4):
+    for y in range(24):
+        for x in range(24):
             c = manager.get_chunk(x, y)
             if c["terrain"] == "bespoke":
                 target_chunk = c
@@ -41,8 +41,8 @@ def test_bespoke_chunk_multiple_modules():
     
     # Force check several chunks to find one with limbs
     found_limbs = False
-    for y in range(4):
-        for x in range(4):
+    for y in range(24):
+        for x in range(24):
             c = manager.get_chunk(x, y)
             if c["terrain"] == "bespoke":
                 # Check for spawns from limbs
@@ -70,10 +70,10 @@ def test_bespoke_chunk_spawning_integration():
         
         sim.open_session()
         
-        # 2. Find a bespoke chunk nearby
+        # 2. Find a bespoke chunk nearby (search in 8x8 macro region)
         target_chunk = None
-        for y in range(4):
-            for x in range(4):
+        for y in range(40):
+            for x in range(40):
                 c = sim.world.get_chunk(x, y)
                 if c["terrain"] == "bespoke":
                     target_chunk = c

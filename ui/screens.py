@@ -5,6 +5,7 @@ Implementations of the UI Screen States.
 from typing import Any, List, Optional, Dict, Tuple
 import tcod
 from tcod import libtcodpy
+import numpy as np
 
 from ui.states import BaseState, Engine
 from ui.renderer import Renderer
@@ -19,6 +20,8 @@ from engine.ecs.components import (
     ItemIdentity,
     Attributes,
     DialogueProfile,
+    DialogueNode,
+    DialogueOption,
     Disposition,
     Faction,
     SocialAwareness
@@ -91,34 +94,81 @@ class ExplorationState(BaseState):
                 break
 
     def on_render(self, renderer: Renderer) -> None:
-        """Draws the map and entities."""
+        """Draws the map and entities with Fog of War (Phase 23)."""
         # Simple HUD
         if self.player and CombatVitals in self.player.components:
             hp = self.player.components[CombatVitals].hp
             max_hp = self.player.components[CombatVitals].max_hp
             renderer.root_console.print(1, 1, f"HP: {hp}/{max_hp}", fg=(0, 255, 0))
             
-        renderer.root_console.print(1, renderer.height - 2, "[Arrows/WASD] Move   [f] Interact   [i] Inventory   [x] Char Sheet   [c] Craft   [ESC] Menu", fg=(150, 150, 150))
+        # Party HUD (Phase 22)
+        from engine.ecs.components import PartyMember
+        party_members = list(self.sim.registry.Q.all_of(components=[PartyMember, EntityIdentity, CombatVitals]))
+        for i, member in enumerate(party_members):
+            ident = member.components[EntityIdentity]
+            vitals = member.components[CombatVitals]
+            y = 3 + i
+            renderer.root_console.print(1, y, f"{ident.name}: {vitals.hp}/{vitals.max_hp}", fg=(200, 255, 200))
+            
+        renderer.root_console.print(1, renderer.height - 2, "[Arrows/WASD] Move   [f] Interact   [i] Inventory   [x] Char Sheet   [c] Craft   [h] History   [ESC] Menu", fg=(150, 150, 150))
         
         # Camera centering based on player
         cam_x, cam_y = 0, 0
+        px, py = 0, 0
         if self.player and Position in self.player.components:
-            cam_x = self.player.components[Position].x - renderer.width // 2
-            cam_y = self.player.components[Position].y - renderer.height // 2
+            px, py = self.player.components[Position].x, self.player.components[Position].y
+            cam_x = px - renderer.width // 2
+            cam_y = py - renderer.height // 2
             
-        # Draw Map
+        # 1. Compute FOV (Phase 23)
+        # Build transparency map for current screen
+        transparency = np.ones((renderer.height, renderer.width), dtype=bool)
         for sy in range(renderer.height):
             for sx in range(renderer.width):
                 world_x = cam_x + sx
                 world_y = cam_y + sy
+                tile = self.sim.world.get_tile(world_x, world_y)
+                if tile == "wall":
+                    transparency[sy, sx] = False
+        
+        # Centered FOV
+        # Note: with (height, width) array, POV must be (row, col) which is (y, x) relative to screen
+        fov = tcod.map.compute_fov(
+            transparency, 
+            (py - cam_y, px - cam_x), 
+            radius=10,
+            light_walls=True,
+            algorithm=libtcodpy.FOV_RESTRICTIVE
+        )
+        
+        # 2. Draw Map and Update Exploration Memory
+        current_chunk = None
+        current_chunk_coords = (-999, -999)
+        
+        for sy in range(renderer.height):
+            world_y = cam_y + sy
+            chunk_y = world_y // self.sim.world.chunk_size
+            
+            for sx in range(renderer.width):
+                world_x = cam_x + sx
+                
+                is_visible = fov[sy, sx]
+                if is_visible:
+                    self.sim.exploration.mark_explored(world_x, world_y)
+                
+                is_explored = self.sim.exploration.is_explored(world_x, world_y)
+                
+                if not is_visible and not is_explored:
+                    continue # Render black
+                
+                # Optimized chunk lookup for biome colors
+                chunk_x = world_x // self.sim.world.chunk_size
+                if (chunk_x, chunk_y) != current_chunk_coords:
+                    current_chunk = self.sim.world.get_chunk(chunk_x, chunk_y)
+                    current_chunk_coords = (chunk_x, chunk_y)
                 
                 tile = self.sim.world.get_tile(world_x, world_y)
-                
-                # Fetch Biome Colors
-                chunk_x = world_x // self.sim.world.chunk_size
-                chunk_y = world_y // self.sim.world.chunk_size
-                chunk = self.sim.world.get_chunk(chunk_x, chunk_y)
-                biome = chunk["biome"]
+                biome = current_chunk["biome"]
                 b_colors = biome.colors
                 
                 # Default character mapping
@@ -134,9 +184,14 @@ class ExplorationState(BaseState):
                 elif tile == "water":
                     char, fg = "~", tuple(b_colors.get("water", [20, 40, 150]))
                 
+                # Apply Dimming if not visible
+                if not is_visible:
+                    # Explored but not visible -> Darken
+                    fg = tuple(int(c * 0.3) for c in fg)
+                
                 renderer.root_console.print(sx, sy, char, fg=fg)
         
-        # Draw entities
+        # 3. Draw entities (Only if visible)
         for ent in self.sim.registry.Q.all_of(components=[Position, EntityIdentity]):
             pos = ent.components[Position]
             ident = ent.components[EntityIdentity]
@@ -145,11 +200,12 @@ class ExplorationState(BaseState):
             screen_y = pos.y - cam_y
             
             if 0 <= screen_x < renderer.width and 0 <= screen_y < renderer.height:
-                if ident.is_player:
-                    renderer.root_console.print(screen_x, screen_y, "@", fg=(0, 255, 255))
-                else:
-                    char = ident.archetype[0] if ident.archetype else "e"
-                    renderer.root_console.print(screen_x, screen_y, char, fg=(255, 50, 50))
+                if fov[screen_y, screen_x] or ident.is_player:
+                    if ident.is_player:
+                        renderer.root_console.print(screen_x, screen_y, "@", fg=(0, 255, 255))
+                    else:
+                        char = ident.archetype[0] if ident.archetype else "e"
+                        renderer.root_console.print(screen_x, screen_y, char, fg=(255, 50, 50))
 
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
@@ -162,6 +218,8 @@ class ExplorationState(BaseState):
             self.engine.change_state(CharacterSheetState(self.engine, self))
         elif event.sym == tcod.event.KeySym.C:
             self.engine.change_state(CraftingState(self.engine, self))
+        elif event.sym == tcod.event.KeySym.H:
+            self.engine.change_state(ChronicleUIState(self.engine, self))
         elif event.sym == tcod.event.KeySym.F:
             # Contextual Interact
             pos = self.player.components[Position]
@@ -343,7 +401,7 @@ class LootState(BaseState):
 
 
 class DialogueState(BaseState):
-    """The dedicated dialogue overlay."""
+    """The dedicated dialogue overlay (Node-Based Phase 24)."""
     
     def __init__(self, engine: Engine, parent_state: ExplorationState, npc: tcod.ecs.Entity):
         super().__init__(engine)
@@ -351,41 +409,70 @@ class DialogueState(BaseState):
         self.sim = parent_state.sim
         self.player = parent_state.player
         self.npc = npc
-        self.text = ""
-        self.options: List[Tuple[str, str]] = [] # [(label, action)]
-        self._setup_dialogue()
+        
+        self.profile = self.npc.components.get(DialogueProfile, DialogueProfile())
+        self.current_node_id = self.profile.current_node_id
+        
+        self.display_text = ""
+        self.options: List[DialogueOption] = []
+        self._refresh_node()
 
-    def _setup_dialogue(self) -> None:
-        ident = self.npc.components[EntityIdentity]
-        disp = self.npc.components.get(Disposition, Disposition())
-        profile = self.npc.components.get(DialogueProfile, DialogueProfile())
+    def _resolve_text(self, text: str) -> str:
+        """Replaces placeholders in dialogue text."""
+        p_name = self.player.components[EntityIdentity].name if self.player else "Traveler"
+        n_name = self.npc.components[EntityIdentity].name
         
-        # 1. Determine Greeting based on reputation or faction standing
-        rep = disp.reputation
+        return text.replace("[PlayerName]", p_name).replace("[NPCName]", n_name)
+
+    def _check_condition(self, condition: str) -> bool:
+        """Evaluates simple conditions for dialogue options."""
+        if not condition: return True
         
-        # Override with Faction Standing if member
-        if Faction in self.npc.components:
-            fid = self.npc.components[Faction].faction_id
-            rep = self.sim.faction_standing.get(fid, rep)
-            
-        mood = "neutral"
-        if rep > 0.4: mood = "friendly"
-        elif rep < -0.3: mood = "hostile"
+        # Reputation check
+        if condition.startswith("rep"):
+            disp = self.npc.components.get(Disposition, Disposition())
+            rep = disp.reputation
+            if Faction in self.npc.components:
+                fid = self.npc.components[Faction].faction_id
+                rep = self.sim.faction_standing.get(fid, rep)
+                
+            parts = condition.split()
+            if len(parts) == 3:
+                op, val = parts[1], float(parts[2])
+                if op == ">": return rep > val
+                if op == "<": return rep < val
+                if op == ">=": return rep >= val
+                
+        return True
+
+    def _refresh_node(self) -> None:
+        """Sets up the current node's text and filtered options."""
+        node = self.profile.nodes.get(self.current_node_id)
         
-        self.text = profile.greetings.get(mood, f"Greetings, traveler. I am {ident.name}.")
-        
-        # 2. Setup Options
-        self.options = [
-            ("[1] Ask for news or rumors", "rumor"),
-            ("[2] Trade items", "trade"),
-            ("[3] Say goodbye", "exit")
-        ]
+        if not node:
+            # Fallback if node missing or starting
+            if self.current_node_id == "start":
+                self.display_text = f"Greetings. I am {self.npc.components[EntityIdentity].name}."
+                self.options = [
+                    DialogueOption(text="[1] Ask for news", target_node="rumor", action="rumor"),
+                    DialogueOption(text="[2] Trade items", target_node="trade", action="trade"),
+                    DialogueOption(text="[3] Join me", target_node="recruit", condition="rep > 0.6", action="recruit"),
+                    DialogueOption(text="[4] Goodbye", target_node="exit")
+                ]
+            else:
+                self.display_text = "..."
+                self.options = [DialogueOption(text="[1] Goodbye", target_node="exit")]
+        else:
+            self.display_text = self._resolve_text(node.text)
+            self.options = [o for o in node.options if self._check_condition(o.condition)]
+            # Add automatic goodbye if no options
+            if not self.options:
+                self.options = [DialogueOption(text="[1] Goodbye", target_node="exit")]
 
     def on_render(self, renderer: Renderer) -> None:
         self.parent_state.on_render(renderer)
         
-        # Draw window (centered)
-        win_w, win_h = 50, 15
+        win_w, win_h = 60, 18
         x = (renderer.width - win_w) // 2
         y = (renderer.height - win_h) // 2
         
@@ -396,41 +483,62 @@ class DialogueState(BaseState):
         )
         
         # NPC Speech
-        # Simple wrapping
         import textwrap
-        lines = textwrap.wrap(self.text, win_w - 4)
+        lines = textwrap.wrap(self.display_text, win_w - 4)
         for i, line in enumerate(lines):
             renderer.root_console.print(x + 2, y + 2 + i, line, fg=(255, 255, 255))
             
         # Options
         opt_y = y + win_h - len(self.options) - 2
-        for i, (label, _) in enumerate(self.options):
+        for i, opt in enumerate(self.options):
+            label = f"[{i+1}] {opt.text}" if not opt.text.startswith("[") else opt.text
             renderer.root_console.print(x + 2, opt_y + i, label, fg=(0, 255, 255))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym == tcod.event.KeySym.ESCAPE:
             self.engine.change_state(self.parent_state)
-        elif event.sym == tcod.event.KeySym.N1:
-            self._handle_action("rumor")
-        elif event.sym == tcod.event.KeySym.N2:
-            self._handle_action("trade")
-        elif event.sym == tcod.event.KeySym.N3:
-            self._handle_action("exit")
+            
+        # Handle Numeric Keys 1-9
+        key_map = {
+            tcod.event.KeySym.N1: 0, tcod.event.KeySym.N2: 1, tcod.event.KeySym.N3: 2,
+            tcod.event.KeySym.N4: 3, tcod.event.KeySym.N5: 4, tcod.event.KeySym.N6: 5,
+            tcod.event.KeySym.N7: 6, tcod.event.KeySym.N8: 7, tcod.event.KeySym.N9: 8
+        }
+        
+        if event.sym in key_map:
+            idx = key_map[event.sym]
+            if idx < len(self.options):
+                self._handle_option(self.options[idx])
 
-    def _handle_action(self, action: str) -> None:
-        if action == "exit":
+    def _handle_option(self, option: DialogueOption) -> None:
+        # 1. Execute Action
+        if option.action == "exit":
             self.engine.change_state(self.parent_state)
-        elif action == "trade":
+            return
+        elif option.action == "trade":
             self.engine.change_state(TradeState(self.engine, self.parent_state, self.npc))
-        elif action == "rumor":
-            # Call sim.share_rumor
+            return
+        elif option.action == "recruit":
+            from engine.ecs.systems import recruit_npc_system
+            if recruit_npc_system(self.player, self.npc):
+                self.display_text = f"It would be an honor to join you, {self.player.components[EntityIdentity].name}."
+                self.options = [DialogueOption(text="[1] Excellent.", target_node="exit")]
+                return
+        elif option.action == "rumor":
             rumor_text = self.sim.share_rumor(self.player, self.npc)
             if rumor_text:
-                self.text = rumor_text
+                self.display_text = rumor_text
             else:
-                self.text = "I'm sorry, I haven't heard anything interesting lately."
-            # Update options to remove rumor ask
-            self.options = [("[1] Goodbye", "exit")]
+                self.display_text = self.profile.rumor_response
+            self.options = [DialogueOption(text="[1] Interesting...", target_node="exit")]
+            return
+
+        # 2. Transition Node
+        if option.target_node == "exit":
+            self.engine.change_state(self.parent_state)
+        else:
+            self.current_node_id = option.target_node
+            self._refresh_node()
 
 
 class TradeState(BaseState):
@@ -633,3 +741,54 @@ class CraftingState(BaseState):
             self._refresh_inventory()
             self.selected_indices = []
             self.cursor_pos = 0
+
+
+class ChronicleUIState(BaseState):
+    """Screen for viewing the history of events (Phase 24)."""
+    
+    def __init__(self, engine: Engine, parent_state: ExplorationState):
+        super().__init__(engine)
+        self.parent_state = parent_state
+        self.sim = parent_state.sim
+        self.history: List[str] = []
+        self._load_history()
+
+    def _load_history(self) -> None:
+        from engine.chronicle import ChronicleReader
+        from engine.narrative import NarrativeGenerator
+        
+        reader = ChronicleReader(self.sim.inscriber.chronicle_path)
+        # Filter for significance >= 3 (Notable+)
+        entries = reader.by_significance(minimum=3)
+        
+        # Translate to prose
+        self.history = []
+        for entry in entries[-30:]: # Show last 30 events
+            text = NarrativeGenerator.entry_to_text(entry)
+            tick = entry.get("timestamp", {}).get("tick", 0)
+            self.history.append(f"T{tick:04}: {text}")
+
+    def on_render(self, renderer: Renderer) -> None:
+        self.parent_state.on_render(renderer)
+        
+        win_w, win_h = 60, 25
+        x = (renderer.width - win_w) // 2
+        y = (renderer.height - win_h) // 2
+        
+        renderer.root_console.draw_frame(
+            x, y, win_w, win_h,
+            "Chronicle: Recent History", clear=True, fg=(255, 255, 255), bg=(0, 0, 0)
+        )
+        
+        if not self.history:
+            renderer.root_console.print(x + 2, y + 2, "(No notable history yet)", fg=(128, 128, 128))
+        else:
+            for i, line in enumerate(self.history):
+                if y + 2 + i >= y + win_h - 2: break
+                renderer.root_console.print(x + 2, y + 2 + i, line)
+                
+        renderer.root_console.print(x + 2, y + win_h - 2, "[ESC/H] to close", fg=(200, 200, 200))
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
+        if event.sym in (tcod.event.KeySym.ESCAPE, tcod.event.KeySym.H):
+            self.engine.change_state(self.parent_state)
