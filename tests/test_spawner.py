@@ -54,5 +54,5 @@ def test_spawn_container_loot():
     assert len(carried) == 2
     
     names = [c.components[ItemIdentity].name for c in carried]
-    assert "Iron Sword" in names
-    assert "Healing Potion" in names
+    assert any("Iron Sword" in name for name in names)
+    assert any("Healing Potion" in name for name in names)

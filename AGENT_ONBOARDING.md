@@ -67,14 +67,14 @@ Before ending this session:
 
 ---
 
-## Phase Status (as of v0.2)
+## Phase Status (as of v0.45)
 
-**Current phase: 0 (exiting)**
-Exit criteria: CONTEXT.md committed, opening/closing templates tested.
+**Current phase: 24 (Narrative UI)**
+Exit criteria: Node-based dialogue and Chronicle UI tested and complete.
 
-Open threads blocking Phase 1: **NONE — Phase 1 is unblocked.**
+Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
 
-**Phase 1 (next):**
-- Create contract documentation: COMPONENTS.md, SYSTEMS.md, EVENTS.md
-- No code written — contracts only
-- Exit criteria: All three contracts complete and peer-reviewed
+**Phase 25 (next):**
+- Implement Game-Over / Restart Flow
+- Allow player death to be recoverable
+- Exit criteria: `GameState` enum terminal values created and integrated
