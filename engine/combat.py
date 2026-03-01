@@ -395,14 +395,15 @@ class FoeFactory:
     @classmethod
     def generate(cls, threat_level: int, archetype: str,
                  name_override: str = "") -> Combatant:
+        threat_level = max(0, threat_level)
         tmpl = cls.ARCHETYPES.get(archetype, cls.ARCHETYPES["Brute"])
         base = cls.BASE_BONUS + threat_level
 
         stats = {
-            "attack_bonus":  min(10, base + tmpl["atk_bonus"]),
-            "defense_bonus": min(10, base + tmpl["def_bonus"]),
+            "attack_bonus":  max(0, min(10, base + tmpl["atk_bonus"])),
+            "defense_bonus": max(0, min(10, base + tmpl["def_bonus"])),
         }
-        hp = int((10 + threat_level * 5) * tmpl["hp_mult"])
+        hp = max(1, int((10 + threat_level * 5) * tmpl["hp_mult"]))
         name = name_override or f"Tier-{threat_level} {archetype}"
 
         return Combatant(
