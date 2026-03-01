@@ -3,6 +3,7 @@ ZEngine — ui/screens.py
 Implementations of the UI Screen States.
 """
 from typing import Any, List, Optional, Dict, Tuple
+from pathlib import Path
 import tcod
 from tcod import libtcodpy
 import numpy as np
@@ -79,6 +80,42 @@ class MainMenuState(BaseState):
                 print(f"Failed to resume session: {e}")
 
 
+class GameOverState(BaseState):
+    """The death screen."""
+    def __init__(self, engine: Engine, sim: SimulationLoop):
+        super().__init__(engine)
+        self.sim = sim
+        # Handle permadeath (delete session)
+        snapshot = Path("sessions/spatial_snapshot.json")
+        if snapshot.exists():
+            snapshot.unlink()
+
+    def on_render(self, renderer: Renderer) -> None:
+        renderer.root_console.print(
+            renderer.width // 2, 
+            renderer.height // 2 - 5, 
+            "YOU HAVE PERISHED", 
+            fg=(255, 0, 0), 
+            alignment=libtcodpy.CENTER
+        )
+        renderer.root_console.print(
+            renderer.width // 2, 
+            renderer.height // 2 - 3, 
+            f"Survived for {self.sim.clock.tick} ticks", 
+            fg=(200, 200, 200), 
+            alignment=libtcodpy.CENTER
+        )
+        
+        renderer.root_console.print(renderer.width // 2, renderer.height // 2, "[M]ain Menu", alignment=libtcodpy.CENTER)
+        renderer.root_console.print(renderer.width // 2, renderer.height // 2 + 1, "[Q]uit", alignment=libtcodpy.CENTER)
+        
+    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
+        if event.sym == tcod.event.KeySym.Q:
+            self.engine.running = False
+        elif event.sym == tcod.event.KeySym.M:
+            self.engine.change_state(MainMenuState(self.engine))
+
+
 class ExplorationState(BaseState):
     """The main gameplay loop screen."""
     
@@ -95,6 +132,12 @@ class ExplorationState(BaseState):
 
     def on_render(self, renderer: Renderer) -> None:
         """Draws the map and entities with Fog of War (Phase 23)."""
+        # Death Check
+        if self.player and CombatVitals in self.player.components:
+            if self.player.components[CombatVitals].hp <= 0:
+                self.engine.change_state(GameOverState(self.engine, self.sim))
+                return
+
         # Simple HUD
         if self.player and CombatVitals in self.player.components:
             hp = self.player.components[CombatVitals].hp

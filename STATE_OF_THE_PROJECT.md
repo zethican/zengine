@@ -8,22 +8,26 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
-| **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Stress/Trauma | Social Fallout and Affliction System                         |
-| **Active Agent**        | Ready                   | All 95 project tests passing                                 |
+| **Current Phase**       | 25 (Game-Over Flow)     | ✅ Terminal states and player death recovery (v0.50)        |
+| **Phase 25 Status**     | ✅ COMPLETE              | State-machine transitions on death; permadeath enforced     |
+| **Next Immediate Task** | Phase 26: AI Pathfinding| AStar navigation and obstacle avoidance                     |
+| **Active Agent**        | Ready                   | All 97 project tests passing                                 |
 
 ---
 
-## Holistic Roadmap (Active Horizon)
+## Holistic Roadmap (Active Horizon - Gap Analysis Priorities)
 
-### Phase 25: Stress & Trauma (Social Fallout)
-- **Goal:** Party members suffer long-term stress effects from combat and loss.
-- **Key System:** `AfflictionSystem` hooking into `Chronicle` events.
+### Phase 25: Game-Over / Restart Flow
+- **Goal:** Implement terminal game states so player death is recoverable rather than a hard halt.
+- **Key System:** `GameState` transitions and `EVT_ON_DEATH` handlers.
 
-### Phase 26: World Simulation (Economy)
-- **Goal:** Factions trade resources between macro-nodes; price shifts.
-- **Key System:** `EconomicManager` and supply-route graphing.
+### Phase 26: AI Multi-Tile Pathfinding
+- **Goal:** Replace 1-tile greedy lookahead with AStar path caching so NPCs can navigate around obstacles.
+- **Key System:** `tcod.path.AStar` integration in `ai_system.py`.
+
+### Phase 27: Player Progression
+- **Goal:** Implement XP, levels, and attribute growth.
+- **Key System:** `XPComponent` and `LevelingSystem` tied to Chronicle events.
 
 ---
 
@@ -50,13 +54,14 @@
 
 ## Recent Activity
 
-### Session: 2026-02-28 (Phases 23-24: Narrative & Exploration)
+### Session: 2026-02-28 (Phases 23-25: Narrative, Exploration, Game-Over)
 
 **Completed:**
-- Implemented **Fog of War**: Persistent exploration memory and optimized FOV rendering (centered on player).
-- Implemented **Node-Based Dialogue**: Branching conversation graphs with conditions, actions, and placeholders.
-- Implemented **Chronicle UI**: A human-readable history screen that filters the low-level event stream into meaningful prose.
-- Stabilized test suite: All 95 project tests passing.
+- Implemented **Game-Over Flow**: Terminal `GameOverState` with permadeath (session deletion) and restart capability (v0.50).
+- Implemented **Fog of War**: Persistent exploration memory and optimized FOV rendering (v0.42).
+- Implemented **Node-Based Dialogue**: Branching conversation graphs with conditions, actions, and placeholders (v0.45).
+- Implemented **Chronicle UI**: A human-readable history screen translating event streams to prose (v0.45).
+- Stabilized test suite: All 97 project tests passing.
 
 ---
 
