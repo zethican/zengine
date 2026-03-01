@@ -2,6 +2,20 @@
 Tests for EventBus emission and error handling in engine/combat.py.
 """
 import sys
+
+# In an isolated environment without pydantic, mock it conditionally.
+try:
+    import pydantic
+except ImportError:
+    from unittest.mock import MagicMock
+    mock_pydantic = MagicMock()
+    class MockBaseModel:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+    mock_pydantic.BaseModel = MockBaseModel
+    sys.modules['pydantic'] = mock_pydantic
+
 import unittest
 import io
 
