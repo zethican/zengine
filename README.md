@@ -36,7 +36,18 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 * **v0.38 (Phase 21)**
   * **JIT Materialization:** Implemented `manage_entity_lifecycle` for lazy ECS instantiation and recursive JSON-based serialization for persistent entities.
 
+* **v0.36 (Phase 20)**
+  * **Territory & Factions:** `TerritoryManager` a priori topological graphing. `FactionSystem` and relationship matrices.
+
 * **v0.35 (Phase 19) - 2026-02-27**
   * **Tag-Based Functional Overhaul Complete:** Abilities migrated to collections of atomic `Effect` objects instead of hardcoded branches.
   * **Formula Engine:** Added runtime evaluator for magnitude strings.
   * **Functional Targeting:** Reusable targeting logic (self, primary, adjacent_all) decoupled from effect execution.
+
+---
+
+## Roadmap
+
+* **Phase 25: Game-Over Flow** — Terminal states and player death recovery.
+* **Phase 26: Pathfinding** — `tcod.path.AStar` integration in AI system.
+* **Phase 27: Player Progression** — XP, levels, and attribute growth.

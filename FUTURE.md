@@ -20,25 +20,9 @@ The following priorities must be addressed in sequence to unblock architectural 
 - **Gap:** No XP, levels, or skill growth. Attributes are static after template load.
 - **Implementation:** Add `XPComponent`, `LevelComponent`, and a `LevelingSystem` hooked to Chronicle kill events.
 
-### 4. Status Effect HUD (Blocking: Gameplay Feel)
-- **Gap:** Modifiers and environmental effects trigger invisibly.
-- **Implementation:** Add a HUD widget in `ui/renderer.py` to display active modifiers and survival conditions (when added).
-
-### 5. Quest / Objective System (Blocking: RPG Layer)
-- **Gap:** Exploration and dialogue lack persistent mechanical consequences or multi-step tracking.
-- **Implementation:** Create an ECS singleton `QuestRegistry`. Hook objectives to Chronicle `bus.emit()` events to mark completion.
-
-### 6. Content Volume (Ongoing)
+### 4. Content Volume (Ongoing)
 - **Gap:** Most data tables (enemies, recipes, abilities, loot) are stubs.
 - **Implementation:** Continuous expansion of `data/` TOML files (loot tables, more recipes, unique NPCs).
-
-### 7. Character Creation Screen
-- **Gap:** Player is forced into `hero_standard.toml` with no agency.
-- **Implementation:** Requires Progression System. New `CharacterCreationState` before world generation to select archetype and allocate stats.
-
-### 8. Dialogue World-State Flags
-- **Gap:** Conversations cannot persistently alter the world in ways other systems observe.
-- **Implementation:** Requires Quest System. Add a `WorldState` flag store.
 
 ---
 
@@ -71,6 +55,7 @@ These systems are recognized gaps but must not interrupt the execution of the Ac
 ## Core Systems (Recently Completed)
 
 - **Ability Effect Resolver:** (Phase 19) Abilities fire complex, data-driven functional pipelines.
+- **Territory & Factions:** (Phase 20) Topological graphing and faction relationship matrices.
 - **JIT Materialization:** (Phase 21) Lazy instantiation and dematerialization of chunks.
 - **Party Management:** (Phase 22) `PartyMember` and `InPartyWith` systems for recruitment.
 - **Exploration Memory / Fog of War:** (Phase 23) Masking and discovery persistence.
