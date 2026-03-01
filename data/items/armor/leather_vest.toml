@@ -1,0 +1,16 @@
+# data/items/armor/leather_vest.toml
+id = "leather_vest"
+name = "Leather Vest"
+description = "Cured hide stitched into a light chest piece. Flexible enough to move in."
+value = 20
+
+[equippable]
+slot = "torso"
+
+[item_stats]
+protection = 2
+
+[tags]
+armor = true
+is_light_armor = true
+is_leather = true

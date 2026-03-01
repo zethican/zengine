@@ -1,0 +1,18 @@
+# data/items/weapons/wooden_club.toml
+id = "wooden_club"
+name = "Wooden Club"
+description = "A gnarled length of hardwood. Simple but effective at close range."
+value = 5
+
+[equippable]
+slot = "hand"
+
+[item_stats]
+attack_bonus = 1
+damage_bonus = 2
+
+[tags]
+weapon = true
+is_club = true
+is_wooden = true
+is_blunt = true

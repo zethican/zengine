@@ -1,0 +1,13 @@
+# data/items/affixes/of_fortitude.toml
+id = "of_fortitude"
+name = "of Fortitude"
+type = "suffix"
+eligible_tags = ["weapon", "armor"]
+weight = 6
+
+[[modifiers]]
+id = "resolve_boost"
+name = "Fortitude"
+stat_field = "resolve"
+magnitude = 3.0
+duration = -1

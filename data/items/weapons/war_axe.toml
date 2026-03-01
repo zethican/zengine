@@ -1,0 +1,18 @@
+# data/items/weapons/war_axe.toml
+id = "war_axe"
+name = "War Axe"
+description = "A heavy single-headed axe. Slow to swing but devastating on impact."
+value = 30
+
+[equippable]
+slot = "hand"
+
+[item_stats]
+attack_bonus = 1
+damage_bonus = 6
+
+[tags]
+weapon = true
+is_axe = true
+is_metallic = true
+is_iron = true

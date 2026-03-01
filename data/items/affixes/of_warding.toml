@@ -1,0 +1,9 @@
+# data/items/affixes/of_warding.toml
+id = "of_warding"
+name = "of Warding"
+type = "suffix"
+eligible_tags = ["armor"]
+weight = 9
+
+[item_stats]
+protection = 3

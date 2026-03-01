@@ -5,8 +5,14 @@ hp = 15
 speed = 12.0
 archetype = "Skirmisher"
 abilities = ["basic_attack"]
+inventory = ["weapons/iron_dagger"]
 
 [attributes]
 might = 10
 finesse = 14
 resolve = 8
+
+[tags]
+is_humanoid = true
+is_hostile = true
+faction = "Marauders"
