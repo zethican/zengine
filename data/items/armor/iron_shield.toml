@@ -1,0 +1,17 @@
+# data/items/armor/iron_shield.toml
+id = "iron_shield"
+name = "Iron Shield"
+description = "A battered round shield, scarred from past encounters."
+value = 25
+
+[equippable]
+slot = "hand"
+
+[item_stats]
+protection = 4
+
+[tags]
+armor = true
+is_shield = true
+is_metallic = true
+is_iron = true

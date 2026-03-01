@@ -5,6 +5,7 @@ hp = 30
 speed = 10.0
 archetype = "Standard"
 abilities = ["basic_attack", "heavy_blow", "heal"]
+inventory = ["weapons/iron_sword", "armor/iron_shield", "consumables/healing_potion"]
 
 [attributes]
 might = 12

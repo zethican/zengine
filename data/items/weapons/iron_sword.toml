@@ -11,5 +11,6 @@ attack_bonus = 2
 damage_bonus = 3
 
 [tags]
+weapon = true
 is_sword = true
 is_metallic = true

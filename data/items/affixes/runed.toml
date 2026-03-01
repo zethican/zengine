@@ -1,0 +1,13 @@
+# data/items/affixes/runed.toml
+id = "runed"
+name = "Runed"
+type = "prefix"
+eligible_tags = ["weapon", "armor"]
+weight = 5
+
+[[modifiers]]
+id = "arcane_edge"
+name = "Arcane Edge"
+stat_field = "attack_bonus"
+magnitude = 2.0
+duration = -1

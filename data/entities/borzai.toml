@@ -5,6 +5,7 @@ hp = 20
 speed = 10.0
 archetype = "Scavenger"
 abilities = ["basic_attack"]
+inventory = ["weapons/wooden_club", "armor/leather_vest"]
 
 [attributes]
 might = 10

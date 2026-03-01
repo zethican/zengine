@@ -52,7 +52,7 @@ class DialogueProfileDef(BaseModel):
 
 class EntityDef(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     id: str
     name: str
     hp: int
@@ -61,6 +61,7 @@ class EntityDef(BaseModel):
     abilities: List[str]
     attributes: Dict[str, int] = Field(default_factory=dict)
     inventory: List[str] = Field(default_factory=list)
+    tags: Dict[str, Any] = Field(default_factory=dict)
     dialogue: Optional[DialogueProfileDef] = None
 
 class RumorDef(BaseModel):

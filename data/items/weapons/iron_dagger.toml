@@ -1,0 +1,18 @@
+# data/items/weapons/iron_dagger.toml
+id = "iron_dagger"
+name = "Iron Dagger"
+description = "A short, double-edged blade. Fast and easy to conceal."
+value = 12
+
+[equippable]
+slot = "hand"
+
+[item_stats]
+attack_bonus = 3
+damage_bonus = 1
+
+[tags]
+weapon = true
+is_dagger = true
+is_metallic = true
+is_iron = true

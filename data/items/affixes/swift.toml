@@ -1,0 +1,13 @@
+# data/items/affixes/swift.toml
+id = "swift"
+name = "Swift"
+type = "prefix"
+eligible_tags = ["weapon"]
+weight = 7
+
+[[modifiers]]
+id = "haste"
+name = "Haste"
+stat_field = "speed"
+magnitude = 2.0
+duration = -1

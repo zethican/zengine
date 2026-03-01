@@ -25,7 +25,7 @@ def select_affixes(item_tags: set[str], count: int) -> List[AffixDef]:
     all_affixes = get_affixes()
     
     # Filter by tags
-    valid = [a for e in all_affixes if any(t in item_tags for t in e.eligible_tags)]
+    valid = [a for a in all_affixes if any(t in item_tags for t in a.eligible_tags)]
     if not valid: return []
     
     # Selection

@@ -1,0 +1,16 @@
+# data/items/affixes/of_flames.toml
+id = "of_flames"
+name = "of Flames"
+type = "suffix"
+eligible_tags = ["weapon"]
+weight = 6
+
+[item_stats]
+damage_bonus = 2
+
+[[modifiers]]
+id = "burning"
+name = "Burning"
+stat_field = "damage_bonus"
+magnitude = 1.0
+duration = 3

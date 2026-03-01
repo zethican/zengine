@@ -1,0 +1,10 @@
+# data/items/affixes/vicious.toml
+id = "vicious"
+name = "Vicious"
+type = "prefix"
+eligible_tags = ["weapon"]
+weight = 8
+
+[item_stats]
+damage_bonus = 3
+attack_bonus = 1
