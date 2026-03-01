@@ -10,20 +10,24 @@
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
 | **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Stress/Trauma | Social Fallout and Affliction System                         |
+| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
 | **Active Agent**        | Ready                   | All 95 project tests passing                                 |
 
 ---
 
-## Holistic Roadmap (Active Horizon)
+## Holistic Roadmap (Active Horizon - Gap Analysis Priorities)
 
-### Phase 25: Stress & Trauma (Social Fallout)
-- **Goal:** Party members suffer long-term stress effects from combat and loss.
-- **Key System:** `AfflictionSystem` hooking into `Chronicle` events.
+### Phase 25: Game-Over / Restart Flow
+- **Goal:** Implement terminal game states so player death is recoverable rather than a hard halt.
+- **Key System:** `GameState` transitions and `EVT_ON_DEATH` handlers.
 
-### Phase 26: World Simulation (Economy)
-- **Goal:** Factions trade resources between macro-nodes; price shifts.
-- **Key System:** `EconomicManager` and supply-route graphing.
+### Phase 26: AI Multi-Tile Pathfinding
+- **Goal:** Replace 1-tile greedy lookahead with AStar path caching so NPCs can navigate around obstacles.
+- **Key System:** `tcod.path.AStar` integration in `ai_system.py`.
+
+### Phase 27: Player Progression
+- **Goal:** Implement XP, levels, and attribute growth.
+- **Key System:** `XPComponent` and `LevelingSystem` tied to Chronicle events.
 
 ---
 

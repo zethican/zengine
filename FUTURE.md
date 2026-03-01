@@ -1,87 +1,77 @@
-# FUTURE.md — Post-MVP Deferred Systems
+# FUTURE.md — Post-MVP Deferred Systems & Active Roadmap
 
-**DO NOT ARCHITECT TOWARD THESE DURING MVP PHASES.**
-
-Phase 2+ features, nice-to-haves, and speculative systems are queued below. If you encounter a requirement that appears here, implement the simpler MVP version and note the full vision in this file.
+This document serves as the strategic roadmap for ZEngine. It has been reorganized to incorporate the comprehensive Gap Analysis between ZEngine and genre touchstones (Caves of Qud / Project Zomboid).
 
 ---
 
-## Active Roadmap (Phases 19-25)
+## Active Roadmap: Gap Analysis Implementation Sequence
 
-### Faction Territories & Shifts (Meaningful Emergence)
-- **Vision:** Dynamic regional control using **A Priori Topological Graphing**. Instead of stochastic physical partitioning, we define the "Theory of the Place" (faction nodes, supply paths, contested locks/keys) as a conceptual graph *before* geometry is generated.
-- **Status:** **UP NEXT** (Phase 20).
-- **Complexity:** High; requires a graph-solving pass before `world/generator.py` materializes tiles.
+The following priorities must be addressed in sequence to unblock architectural dependencies and bridge the core feature gaps.
 
-### JIT Materialization (Lazy Instantiation)
-- **Vision:** Transition from chunk-buffered generation to true JIT instantiation. Entities and tiles only materialize in the ECS registry at the "moment of observation" (within FOV). Outside the player's bubble, entities exist only as `Chronicle` records or world-seed rules.
-- **Status:** Queued for Phase 21.
-- **Complexity:** High; requires decoupling the `SimulationLoop` from active spatial chunks.
+### 1. Game-Over / Restart Flow (Blocking: Playtestability)
+- **Gap:** Player death (`vitals.is_dead = True`) halts gameplay with no recovery.
+- **Implementation:** Add terminal `GameState` enum values (`GameOverState`). Wire death check into a state-machine transition via `EventBus` subscriber (`EVT_ON_DEATH`).
 
-### Party Management System
-- **Vision:** Recruiting NPCs into a persistent party; tactical control of multiple units; party-shared inventory and collective stress.
-- **Status:** Queued for Phase 22.
-- **Complexity:** High; requires UI overhaul and AI sub-agent logic.
+### 2. AI Multi-Tile Pathfinding (Blocking: Navigation)
+- **Gap:** AI relies on 1-tile greedy lookahead of influence maps and gets stuck on obstacles.
+- **Implementation:** Implement `AStar` path caching using `tcod.path`. Compute 8-15 tile paths on target acquisition and pop waypoints for movement.
 
-### Exploration Memory (Fog of War)
-- **Vision:** Persistent "fog" or memory of explored chunks; map UI for visited areas.
-- **Status:** Queued for Phase 23.
-- **Complexity:** Moderate; requires bitmask persistence per world chunk.
+### 3. Player Progression (Blocking: Core RPG Arc)
+- **Gap:** No XP, levels, or skill growth. Attributes are static after template load.
+- **Implementation:** Add `XPComponent`, `LevelComponent`, and a `LevelingSystem` hooked to Chronicle kill events.
 
-### Narrative Expression (Chronicle UI)
-- **Vision:** In-game "History" or "Legacy" screen that interprets the JSONL log into readable prose for the player.
-- **Status:** Queued for Phase 24.
-- **Complexity:** Moderate; requires significance-based filtering.
+### 4. Status Effect HUD (Blocking: Gameplay Feel)
+- **Gap:** Modifiers and environmental effects trigger invisibly.
+- **Implementation:** Add a HUD widget in `ui/renderer.py` to display active modifiers and survival conditions (when added).
 
----
+### 5. Quest / Objective System (Blocking: RPG Layer)
+- **Gap:** Exploration and dialogue lack persistent mechanical consequences or multi-step tracking.
+- **Implementation:** Create an ECS singleton `QuestRegistry`. Hook objectives to Chronicle `bus.emit()` events to mark completion.
 
-## Core Systems (Completed or Hardened)
+### 6. Content Volume (Ongoing)
+- **Gap:** Most data tables (enemies, recipes, abilities, loot) are stubs.
+- **Implementation:** Continuous expansion of `data/` TOML files (loot tables, more recipes, unique NPCs).
 
-### Cross-Session World Persistence
-- **Status:** ✅ COMPLETED (v0.22)
-- **Detail:** Entities, stats, recursive inventory, and faction standings now persist via spatial snapshots. Deterministic world seed handles chunk recovery.
+### 7. Character Creation Screen
+- **Gap:** Player is forced into `hero_standard.toml` with no agency.
+- **Implementation:** Requires Progression System. New `CharacterCreationState` before world generation to select archetype and allocate stats.
 
-### Reactive Modifier System
-- **Status:** ✅ COMPLETED (v0.31)
-- **Detail:** Entities support multiple buffs/debuffs; reactive on-hit triggers; consumable self-application.
-
-### Procedural Affix System
-- **Status:** ✅ COMPLETED (v0.34)
-- **Detail:** Diablo-style tiered rarity (Common, Magic, Rare) with prefixes and suffixes.
+### 8. Dialogue World-State Flags
+- **Gap:** Conversations cannot persistently alter the world in ways other systems observe.
+- **Implementation:** Requires Quest System. Add a `WorldState` flag store.
 
 ---
 
-## Deferred Advanced Systems (Post-Phase 25)
+## Deferred Advanced Systems (High Architectural Cost)
 
-### AP Economy & Reaction System
-- **Vision:** AP carry-over across turns; reaction pool for interrupt mechanics.
-- **Why deferred:** Adds complexity to economy; ARPG kinetic feel mandate is better served by clean AP reset.
+These systems are recognized gaps but must not interrupt the execution of the Active Roadmap.
 
-### Real-time Social Layer Daemon
-- **Vision:** Background NPC simulation runs continuously during dungeon exploration.
-- **Why deferred:** Post-MVP complexity; current approach preserves player agency to react to major events.
+### NPC Off-Screen Simulation
+- **Vision:** Run factions and NPCs outside of the player's immediate engagement range.
+- **Status:** Deferred until World-State flags are hardened.
 
-### Tag-Based Casting (Wildermyth Model)
-- **Vision:** Abilities selected via tag subscriptions instead of hardcoded behavior.
-- **Complexity:** High; affects entire ability resolution architecture.
+### Crafting Depth & Economy
+- **Vision:** Supply/demand driven item pricing and equipment durability loops.
+- **Status:** Deferred until Content Volume supports a robust economy.
 
-### Third Gender / Custom Caste System
-- **Vision:** Character generation system allowing non-binary and caste-based identity.
-- **Status:** Deferred for a focused cultural representation pass.
+### Wilderness / Biome Depth
+- **Vision:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
+- **Status:** Deferred (Cosmetic until late stage).
 
----
+### Destructible / Dynamic Terrain
+- **Vision:** Tile state mutations (barricades, destruction) that rebuild pathfinding cost maps.
+- **Status:** Deferred (Highest architectural cost).
 
-## Known Speculations (Exploratory)
-
-- **Procedural Legend Generation:** character backstories generated from encounter history.
-- **NPC Apprenticeship:** recruiting former enemies as specialized allies.
-- **World Eras:** world state shifts drastically after major narrative milestones (Cycle completion).
-- **Item Corruption:** cursed gear acting as narrative and mechanical hooks.
+### Tooltips / UX Polish
+- **Vision:** Minimap, hover tooltips for item descriptions, and raw dice roll surfacing.
+- **Status:** Deferred (Low priority polish).
 
 ---
 
-## How to Use This File
+## Core Systems (Recently Completed)
 
-1. **If you discover a "nice to have"** → Add it here with Vision, Status, Complexity.
-2. **If you implement a deferred system** → Move it to "Active Roadmap" or "Completed".
-3. **Agent closing ritual** → Check this file; confirm no new post-MVP items were sneaked into MVP scope.
+- **Ability Effect Resolver:** (Phase 19) Abilities fire complex, data-driven functional pipelines.
+- **JIT Materialization:** (Phase 21) Lazy instantiation and dematerialization of chunks.
+- **Party Management:** (Phase 22) `PartyMember` and `InPartyWith` systems for recruitment.
+- **Exploration Memory / Fog of War:** (Phase 23) Masking and discovery persistence.
+- **Narrative UI / Node-Based Dialogue:** (Phase 24) Chronicle UI and branching conversation graphs.
