@@ -8,10 +8,10 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
-| **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
-| **Active Agent**        | Ready                   | All 95 project tests passing                                 |
+| **Current Phase**       | 25 (Game-Over Flow)     | ✅ Terminal states and player death recovery (v0.50)        |
+| **Phase 25 Status**     | ✅ COMPLETE              | State-machine transitions on death; permadeath enforced     |
+| **Next Immediate Task** | Phase 26: AI Pathfinding| AStar navigation and obstacle avoidance                     |
+| **Active Agent**        | Ready                   | All 97 project tests passing                                 |
 
 ---
 
@@ -54,13 +54,14 @@
 
 ## Recent Activity
 
-### Session: 2026-02-28 (Phases 23-24: Narrative & Exploration)
+### Session: 2026-02-28 (Phases 23-25: Narrative, Exploration, Game-Over)
 
 **Completed:**
-- Implemented **Fog of War**: Persistent exploration memory and optimized FOV rendering (centered on player).
-- Implemented **Node-Based Dialogue**: Branching conversation graphs with conditions, actions, and placeholders.
-- Implemented **Chronicle UI**: A human-readable history screen that filters the low-level event stream into meaningful prose.
-- Stabilized test suite: All 95 project tests passing.
+- Implemented **Game-Over Flow**: Terminal `GameOverState` with permadeath (session deletion) and restart capability (v0.50).
+- Implemented **Fog of War**: Persistent exploration memory and optimized FOV rendering (v0.42).
+- Implemented **Node-Based Dialogue**: Branching conversation graphs with conditions, actions, and placeholders (v0.45).
+- Implemented **Chronicle UI**: A human-readable history screen translating event streams to prose (v0.45).
+- Stabilized test suite: All 97 project tests passing.
 
 ---
 

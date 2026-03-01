@@ -16,3 +16,4 @@ dist/
 sessions/chronicle.jsonl
 startup.log
 debug_snap.toml
+improvement_pass_.txt
