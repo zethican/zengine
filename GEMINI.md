@@ -8,6 +8,16 @@ This document serves as the foundational instructional context for the **ZRogue 
 
 **ZEngine** is a social ecology simulator and party-based roguelike. It focuses on procedural generation, narrative persistence, and a reactive social layer. The project is currently entering **Phase 25 (Game-Over Flow)** (Checkpoint v0.45), following the completion of Phase 24 (Narrative UI).
 
+**Active Roadmap Horizon:**
+- Phase 25: Game-Over Flow
+- Phase 26: AI Multi-Tile Pathfinding
+- Phase 27: Player Progression
+- Phase 28: Status Effect HUD
+- Phase 29: Quest / Objective System
+- Phase 30: Character Creation Screen
+- Phase 31: Dialogue World-State Flags
+- Phase 32: Wilderness Ecosystems & Dynamic Weather
+
 - **Stack:** Python 3.14.3
 - **ECS:** `python-tcod-ecs` (sparse-set ECS with strong type-hinting)
 - **Renderer:** `tcod` (terminal-based UI)

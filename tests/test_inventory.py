@@ -4,10 +4,15 @@ import pytest
 from engine.item_factory import create_item
 from engine.ecs.components import ItemIdentity
 
+from unittest.mock import patch
+
 def test_create_item_entity():
     registry = tcod.ecs.Registry()
-    item_entity = create_item(registry, "weapons/iron_sword")
     
+    # Force 'common' rarity to prevent random procedural affixes from changing the base name
+    with patch('engine.item_factory.roll_rarity', return_value='common'):
+        item_entity = create_item(registry, "weapons/iron_sword")
+
     assert ItemIdentity in item_entity.components
     assert item_entity.components[ItemIdentity].name == "Iron Sword"
     assert item_entity.components[ItemIdentity].entity_id == "iron_sword"
