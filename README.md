@@ -22,6 +22,9 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 
 ## Version History
 
+* **v0.46 (Phase 25) - 2026-03-01**
+  * **Game-Over Flow:** Terminal game states (`GameOverState`) and player death recovery via `EventBus` (`EVT_ON_DEATH`).
+
 * **v0.45 (Phase 24) - 2026-02-28**
   * **Narrative UI Complete:** Implemented Node-Based Dialogue graphs (conditions, actions, placeholders).
   * **Chronicle UI:** Added a human-readable history screen that translates raw event streams into meaningful prose via `NarrativeGenerator`.
@@ -48,6 +51,6 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 
 ## Roadmap
 
-* **Phase 25: Game-Over Flow** — Terminal states and player death recovery.
 * **Phase 26: Pathfinding** — `tcod.path.AStar` integration in AI system.
 * **Phase 27: Player Progression** — XP, levels, and attribute growth.
+* **Phase 28: Status Effect HUD** — Visual feedback for active modifiers.

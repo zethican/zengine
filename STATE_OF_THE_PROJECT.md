@@ -1,6 +1,6 @@
 # STATE_OF_THE_PROJECT.md
 
-**Last Updated:** 2026-02-28 (Manual Checkpoint v0.45 - Exploration & Narrative Complete)
+**Last Updated:** 2026-03-01 (Checkpoint v0.46 - Phase 25 Initiated)
 
 ---
 
@@ -8,10 +8,10 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
+| **Current Phase**       | 25 (Game-Over Flow)     | 🏗️ Implementing terminal game states and player death recovery|
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
-| **Active Agent**        | Ready                   | All 95 project tests passing                                 |
+| **Next Immediate Task** | Phase 26: Pathfinding   | `tcod.path.AStar` integration in `ai_system.py`              |
+| **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
 ---
 
@@ -49,6 +49,9 @@
 
 ## What Exists Right Now
 
+### Phase 25 Implementation (Game-Over Flow)
+- 🏗️ Terminal game states (`GameOverState`) and `EVT_ON_DEATH` event bus handlers.
+
 ### Phase 24 Implementation (Narrative UI)
 - ✅ `engine/narrative.py` — `NarrativeGenerator` prose translation (v0.45).
 - ✅ `ui/screens.py` — `ChronicleUIState` for significance-filtered history (v0.45).
@@ -74,13 +77,17 @@
 
 ## Recent Activity
 
+### Session: 2026-03-01 (Roadmap & Documentation Update)
+**Completed:**
+- Updated roadmap and active features in documentation across `STATE_OF_THE_PROJECT.md`, `FUTURE.md`, `README.md`, `AGENT_ONBOARDING.md`, `CLAUDE.md`, and `GEMINI.md`.
+
 ### Session: 2026-02-28 (Phases 23-24: Narrative & Exploration)
 
 **Completed:**
 - Implemented **Fog of War**: Persistent exploration memory and optimized FOV rendering (centered on player).
 - Implemented **Node-Based Dialogue**: Branching conversation graphs with conditions, actions, and placeholders.
 - Implemented **Chronicle UI**: A human-readable history screen that filters the low-level event stream into meaningful prose.
-- Stabilized test suite: All 95 project tests passing.
+- Stabilized test suite: All 148 project tests passing.
 
 ---
 
