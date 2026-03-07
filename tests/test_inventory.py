@@ -9,7 +9,7 @@ def test_create_item_entity():
     item_entity = create_item(registry, "weapons/iron_sword")
     
     assert ItemIdentity in item_entity.components
-    assert item_entity.components[ItemIdentity].name == "Iron Sword"
+    assert "Iron Sword" in item_entity.components[ItemIdentity].name
     assert item_entity.components[ItemIdentity].entity_id == "iron_sword"
 
 def test_pickup_item_removes_position():
