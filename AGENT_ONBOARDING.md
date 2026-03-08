@@ -75,6 +75,6 @@ Exit criteria: Node-based dialogue and Chronicle UI tested and complete.
 Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
 
 **Phase 25 (next):**
-- Implement Game-Over / Restart Flow
-- Allow player death to be recoverable
-- Exit criteria: `GameState` enum terminal values created and integrated
+- Implement Ability Effect Resolver Wiring
+- Fix the gap where ability effects fire invisibly or not at all in the action resolution loop
+- Exit criteria: `action_resolution_system` correctly parses and applies ability effects, mana/resources can be spent, cooldowns tracked
