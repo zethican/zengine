@@ -78,3 +78,9 @@ Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
 - Implement Game-Over / Restart Flow
 - Allow player death to be recoverable
 - Exit criteria: `GameState` enum terminal values created and integrated
+
+**Phase 26 (upcoming):**
+- AI Multi-Tile Pathfinding (`tcod.path.AStar`)
+
+**Phase 27 (upcoming):**
+- Player Progression (XP, levels, attribute growth)

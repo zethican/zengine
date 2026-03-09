@@ -14,7 +14,7 @@ This file is the canonical onboarding document for **Claude Code** working on ZE
 | **Stack** | Python 3.11+ · python-tcod-ecs · tcod · Pydantic v2 · TOML · JSONL Chronicle |
 | **Current Phase** | 24 (Narrative UI) — ✅ COMPLETE (v0.45) |
 | **Next Phase** | 25: Game-Over / Restart Flow |
-| **Test Status** | 148 tests passing — `pytest tests/` |
+| **Test Status** | 148 tests passing (1 skipped) — `pytest tests/` |
 | **Entry Point** | `run.py` |
 
 ---
@@ -53,7 +53,7 @@ zengine/
 │   ├── items/            # TOML item/affix/consumable definitions
 │   ├── world/            # TOML world chunk and module definitions
 │   └── recipes/          # TOML crafting recipes
-├── tests/                # 34 pytest test files (95 tests total)
+├── tests/                # 40 pytest test files (148 tests total)
 ├── sessions/
 │   └── chronicle.jsonl   # Append-only event journal (source of truth)
 ├── run.py                # Game entry point
@@ -101,7 +101,7 @@ python run.py
 ```bash
 pytest tests/
 ```
-All 95 tests must pass before committing. Never leave failing tests.
+All tests must pass before committing. Never leave failing tests.
 
 ### Smoke Tests (individual modules)
 ```bash
@@ -257,7 +257,12 @@ Always check `DESIGN_VARIABLES.md` for the full list before introducing any nume
 | 24: Narrative UI | ✅ COMPLETE | Node-based dialogue, Chronicle UI, Fog of War |
 | 25: Game-Over Flow| **NEXT** | Terminal game states for player death |
 | 26: Pathfinding   | Queued | `tcod.path.AStar` integration in `ai_system.py` |
-| Post-25 deferred  | `FUTURE.md` | Quest System, Content Volume, Character Creation |
+| 27: Progression   | Queued | XP, levels, and attribute growth |
+| 28: Status HUD    | Queued | Visually surface active modifiers and conditions |
+| 29: Quest System  | Queued | Ensure exploration has persistent consequences |
+| 30: Char Creation | Queued | Select archetypes and stat allocation before world gen |
+| 31: World Flags   | Queued | Persistently alter world state via conversation |
+| Deferred Systems  | `FUTURE.md` | NPC Off-Screen Simulation, Crafting Economy, Biome Depth |
 
 ---
 
