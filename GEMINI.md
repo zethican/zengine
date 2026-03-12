@@ -101,6 +101,19 @@ ZEngine follows a strict ECS pattern:
 - `run.py`: The main game executable loop for user interaction.
 - `user_scratch/`: Archival design documents and reference manifests.
 
+---
+
+## Roadmap
+
+* **Phase 25:** Game-Over Flow
+* **Phase 26:** AI Multi-Tile Pathfinding
+* **Phase 27:** Player Progression
+* **Phase 28:** Status Effect HUD
+* **Phase 29:** Quest / Objective System
+* **Phase 30:** Character Creation Screen
+* **Phase 31:** Dialogue World-State Flags
+* **Phase 32:** Wilderness / Biome Depth
+
 
 ---
 

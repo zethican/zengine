@@ -38,10 +38,6 @@ These systems are recognized gaps but must not interrupt the execution of the Ac
 - **Vision:** Supply/demand driven item pricing and equipment durability loops.
 - **Status:** Deferred until Content Volume supports a robust economy.
 
-### Wilderness / Biome Depth
-- **Vision:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
-- **Status:** Deferred (Cosmetic until late stage).
-
 ### Destructible / Dynamic Terrain
 - **Vision:** Tile state mutations (barricades, destruction) that rebuild pathfinding cost maps.
 - **Status:** Deferred (Highest architectural cost).

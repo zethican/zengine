@@ -5,10 +5,13 @@ from engine.item_factory import create_item
 from engine.ecs.components import ItemIdentity
 
 def test_create_item_entity():
+    import random
     registry = tcod.ecs.Registry()
+    random.seed(42) # Ensure deterministic item creation without affixes
     item_entity = create_item(registry, "weapons/iron_sword")
     
     assert ItemIdentity in item_entity.components
+    # With seed 42, random.random() -> 0.6394267984578837, which is > 0.30 ("common" rarity, no affixes)
     assert item_entity.components[ItemIdentity].name == "Iron Sword"
     assert item_entity.components[ItemIdentity].entity_id == "iron_sword"
 

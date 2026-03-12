@@ -51,3 +51,8 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 * **Phase 25: Game-Over Flow** — Terminal states and player death recovery.
 * **Phase 26: Pathfinding** — `tcod.path.AStar` integration in AI system.
 * **Phase 27: Player Progression** — XP, levels, and attribute growth.
+* **Phase 28: Status Effect HUD** — Visual surface of modifiers and survival conditions.
+* **Phase 29: Quest / Objective System** — Exploration and dialogue have mechanical consequences.
+* **Phase 30: Character Creation Screen** — Player agency before world generation.
+* **Phase 31: Dialogue World-State Flags** — Persistently alter the world via conversation.
+* **Phase 32: Wilderness / Biome Depth** — Per-biome spawn tables, noise-blended seams, dynamic weather.
