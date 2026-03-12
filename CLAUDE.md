@@ -257,7 +257,13 @@ Always check `DESIGN_VARIABLES.md` for the full list before introducing any nume
 | 24: Narrative UI | ✅ COMPLETE | Node-based dialogue, Chronicle UI, Fog of War |
 | 25: Game-Over Flow| **NEXT** | Terminal game states for player death |
 | 26: Pathfinding   | Queued | `tcod.path.AStar` integration in `ai_system.py` |
-| Post-25 deferred  | `FUTURE.md` | Quest System, Content Volume, Character Creation |
+| 27: Progression   | Queued | XP, levels, and attribute growth |
+| 28: Status HUD    | Queued | Visual surface of modifiers and survival conditions |
+| 29: Quest System  | Queued | Exploration and dialogue have mechanical consequences |
+| 30: Char Creation | Queued | Player agency before world generation |
+| 31: World-State   | Queued | Persistently alter the world via conversation |
+| 32: Biome Depth   | Queued | Per-biome spawn tables, noise-blended seams, dynamic weather |
+| Post-32 deferred  | `FUTURE.md` | NPC Off-Screen Simulation, Crafting Depth & Economy |
 
 ---
 

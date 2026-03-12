@@ -78,3 +78,12 @@ Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
 - Implement Game-Over / Restart Flow
 - Allow player death to be recoverable
 - Exit criteria: `GameState` enum terminal values created and integrated
+
+**Upcoming Roadmap (Phases 26-32):**
+- **26:** AI Multi-Tile Pathfinding
+- **27:** Player Progression
+- **28:** Status Effect HUD
+- **29:** Quest / Objective System
+- **30:** Character Creation Screen
+- **31:** Dialogue World-State Flags
+- **32:** Wilderness / Biome Depth
