@@ -1,6 +1,6 @@
 # STATE_OF_THE_PROJECT.md
 
-**Last Updated:** 2026-02-28 (Manual Checkpoint v0.45 - Exploration & Narrative Complete)
+**Last Updated:** 2026-03-01 (Manual Checkpoint v0.45 - Exploration & Narrative Complete)
 
 ---
 
@@ -11,7 +11,7 @@
 | **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
 | **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
-| **Active Agent**        | Ready                   | All 95 project tests passing                                 |
+| **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
 ---
 
@@ -44,6 +44,14 @@
 ### Phase 31: Dialogue World-State Flags
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
+
+### Phase 32: NPC Off-Screen Simulation
+- **Goal:** Run factions and NPCs outside of the player's immediate engagement range.
+- **Key System:** Deferred until World-State flags (Phase 31) are hardened. Hook into JIT materialization.
+
+### Phase 33: Tooltips / UX Polish
+- **Goal:** Minimap, hover tooltips for item descriptions, and raw dice roll surfacing.
+- **Key System:** `ui/renderer.py` extensions and input handling refinements.
 
 ---
 
