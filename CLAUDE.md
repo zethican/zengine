@@ -257,7 +257,7 @@ Always check `DESIGN_VARIABLES.md` for the full list before introducing any nume
 | 24: Narrative UI | ✅ COMPLETE | Node-based dialogue, Chronicle UI, Fog of War |
 | 25: Game-Over Flow| **NEXT** | Terminal game states for player death |
 | 26: Pathfinding   | Queued | `tcod.path.AStar` integration in `ai_system.py` |
-| Post-25 deferred  | `FUTURE.md` | Quest System, Content Volume, Character Creation |
+| Post-26 deferred  | `STATE_OF_THE_PROJECT.md` | Progression, HUD, Quest System, Character Creation, World-State Flags, NPC Simulation |
 
 ---
 
