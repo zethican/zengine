@@ -1,6 +1,6 @@
 # STATE_OF_THE_PROJECT.md
 
-**Last Updated:** 2026-02-28 (Manual Checkpoint v0.45 - Exploration & Narrative Complete)
+**Last Updated:** 2026-03-15 (Manual Checkpoint v0.45 - Exploration & Narrative Complete)
 
 ---
 
@@ -8,9 +8,9 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
-| **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
+| **Current Phase**       | 25 (Game-Over Flow)       | Active work                            |
+| **Phase 25 Status**     | **ACTIVE**              | Terminal states and player death recovery |
+| **Next Immediate Task** | Phase 26: Pathfinding   | `tcod.path.AStar` integration in `ai_system.py`                    |
 | **Active Agent**        | Ready                   | All 95 project tests passing                                 |
 
 ---

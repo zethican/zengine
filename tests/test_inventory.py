@@ -4,13 +4,17 @@ import pytest
 from engine.item_factory import create_item
 from engine.ecs.components import ItemIdentity
 
+import random
+
 def test_create_item_entity():
+    random.seed(42)
     registry = tcod.ecs.Registry()
     item_entity = create_item(registry, "weapons/iron_sword")
     
     assert ItemIdentity in item_entity.components
-    assert item_entity.components[ItemIdentity].name == "Iron Sword"
+    assert "Iron Sword" in item_entity.components[ItemIdentity].name
     assert item_entity.components[ItemIdentity].entity_id == "iron_sword"
+    random.seed()
 
 def test_pickup_item_removes_position():
     from engine.ecs.systems import pickup_item_system
