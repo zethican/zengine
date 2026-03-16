@@ -3,52 +3,23 @@
 This document serves as the strategic roadmap for ZEngine. It has been reorganized to incorporate the comprehensive Gap Analysis between ZEngine and genre touchstones (Caves of Qud / Project Zomboid).
 
 ---
-
-## Active Roadmap: Gap Analysis Implementation Sequence
-
-The following priorities must be addressed in sequence to unblock architectural dependencies and bridge the core feature gaps.
-
-### 1. Game-Over / Restart Flow (Blocking: Playtestability)
-- **Gap:** Player death (`vitals.is_dead = True`) halts gameplay with no recovery.
-- **Implementation:** Add terminal `GameState` enum values (`GameOverState`). Wire death check into a state-machine transition via `EventBus` subscriber (`EVT_ON_DEATH`).
-
-### 2. AI Multi-Tile Pathfinding (Blocking: Navigation)
-- **Gap:** AI relies on 1-tile greedy lookahead of influence maps and gets stuck on obstacles.
-- **Implementation:** Implement `AStar` path caching using `tcod.path`. Compute 8-15 tile paths on target acquisition and pop waypoints for movement.
-
-### 3. Player Progression (Blocking: Core RPG Arc)
-- **Gap:** No XP, levels, or skill growth. Attributes are static after template load.
-- **Implementation:** Add `XPComponent`, `LevelComponent`, and a `LevelingSystem` hooked to Chronicle kill events.
-
-### 4. Content Volume (Ongoing)
-- **Gap:** Most data tables (enemies, recipes, abilities, loot) are stubs.
-- **Implementation:** Continuous expansion of `data/` TOML files (loot tables, more recipes, unique NPCs).
-
 ---
 
 ## Deferred Advanced Systems (High Architectural Cost)
 
-These systems are recognized gaps but must not interrupt the execution of the Active Roadmap.
+*Note: The Active Roadmap has been migrated to `STATE_OF_THE_PROJECT.md`. The systems below represent post-MVP or deferred architectural ambitions.*
 
-### NPC Off-Screen Simulation
-- **Vision:** Run factions and NPCs outside of the player's immediate engagement range.
-- **Status:** Deferred until World-State flags are hardened.
+### Magic System Overhaul
+- **Vision:** Implement a robust magic system with spell combinations and environmental reactions.
+- **Status:** Deferred until core combat and item progression are stabilized.
 
-### Crafting Depth & Economy
-- **Vision:** Supply/demand driven item pricing and equipment durability loops.
-- **Status:** Deferred until Content Volume supports a robust economy.
+### Player Housing / Settlement Building
+- **Vision:** Allow players to build custom structures or claim abandoned territory as their own.
+- **Status:** Deferred (Post-MVP ambition; requires advanced Destructible Terrain integration).
 
-### Wilderness / Biome Depth
-- **Vision:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
-- **Status:** Deferred (Cosmetic until late stage).
-
-### Destructible / Dynamic Terrain
-- **Vision:** Tile state mutations (barricades, destruction) that rebuild pathfinding cost maps.
-- **Status:** Deferred (Highest architectural cost).
-
-### Tooltips / UX Polish
-- **Vision:** Minimap, hover tooltips for item descriptions, and raw dice roll surfacing.
-- **Status:** Deferred (Low priority polish).
+### Advanced Social Simulation (Politics / Espionage)
+- **Vision:** Deepen Faction logic to handle espionage, political alliances, and large-scale warfare.
+- **Status:** Deferred (Post-MVP ambition; requires NPC Off-Screen Simulation).
 
 ---
 

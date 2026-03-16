@@ -48,6 +48,9 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 
 ## Roadmap
 
-* **Phase 25: Game-Over Flow** — Terminal states and player death recovery.
-* **Phase 26: Pathfinding** — `tcod.path.AStar` integration in AI system.
-* **Phase 27: Player Progression** — XP, levels, and attribute growth.
+* **Phase 25: Ability Effect Resolver** — Wire `action_resolution_system` to actually apply `effects[]` from ability TOMLs.
+* **Phase 26: Game-Over Flow** — Terminal states and player death recovery.
+* **Phase 27: Pathfinding** — `tcod.path.AStar` integration in AI system.
+* **Phase 28: Player Progression** — XP, levels, and attribute growth.
+* **Phase 29: Status Effect HUD** — Visually surface active modifiers and survival conditions to the player.
+* *(See `STATE_OF_THE_PROJECT.md` for the full Active Horizon roadmap)*
