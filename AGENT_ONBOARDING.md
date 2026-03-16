@@ -69,12 +69,12 @@ Before ending this session:
 
 ## Phase Status (as of v0.45)
 
-**Current phase: 24 (Narrative UI)**
-Exit criteria: Node-based dialogue and Chronicle UI tested and complete.
+**Current phase: 25 (Ability Effect Resolver)**
+Exit criteria: Ability effects from TOML correctly trigger and resolve during combat.
 
-Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
+Open threads blocking Phase 26: **NONE — Phase 25 is the active priority.**
 
-**Phase 25 (next):**
+**Phase 26 (next):**
 - Implement Game-Over / Restart Flow
 - Allow player death to be recoverable
 - Exit criteria: `GameState` enum terminal values created and integrated
