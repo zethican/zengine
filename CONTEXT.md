@@ -1,6 +1,6 @@
 # CONTEXT.md — ZEngine Handoff
 
-**Packaged:** February 27, 2026 | **Phase:** 19 (complete) | **Next:** Phase 20 (TBD)
+**Packaged:** February 28, 2026 | **Phase:** 24 (complete) | **Next:** Phase 25
 
 ---
 
@@ -10,7 +10,7 @@
 - **Author:** Zachery (solo indie)
 - **Stack:** Python 3.14.3 | python-tcod-ecs | tcod renderer | Pydantic v2 | TOML | JSONL Chronicle
 - **Active environment:** Agentic CLI, local filesystem
-- **Design status:** v0.35 (Tag-Based Functional Overhaul complete)
+- **Design status:** v0.45 (Narrative UI Complete)
 - **Canonical design reference:** `ZEngine_Manifest_v0_2.pdf` (§1–§19)
 
 ---
