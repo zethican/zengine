@@ -45,6 +45,14 @@
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
 
+### Phase 32: Crafting Depth & Economy
+- **Goal:** Supply/demand driven item pricing and equipment durability loops.
+- **Key System:** Foundational layers unblocked by recipes and trade integration.
+
+### Phase 33: Wilderness / Biome Depth
+- **Goal:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
+- **Key System:** Foundational layers unblocked by procedural generation and density drivers.
+
 ---
 
 ## What Exists Right Now

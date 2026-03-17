@@ -51,3 +51,5 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 * **Phase 25: Game-Over Flow** — Terminal states and player death recovery.
 * **Phase 26: Pathfinding** — `tcod.path.AStar` integration in AI system.
 * **Phase 27: Player Progression** — XP, levels, and attribute growth.
+* **Phase 32: Crafting Depth & Economy** — Supply/demand loops and item durability.
+* **Phase 33: Wilderness / Biome Depth** — Biome spawn tables and dynamic hazards.
