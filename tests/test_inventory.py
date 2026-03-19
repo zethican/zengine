@@ -4,9 +4,13 @@ import pytest
 from engine.item_factory import create_item
 from engine.ecs.components import ItemIdentity
 
+import random
+
 def test_create_item_entity():
     registry = tcod.ecs.Registry()
+    random.seed(42)
     item_entity = create_item(registry, "weapons/iron_sword")
+    random.seed()
     
     assert ItemIdentity in item_entity.components
     assert item_entity.components[ItemIdentity].name == "Iron Sword"

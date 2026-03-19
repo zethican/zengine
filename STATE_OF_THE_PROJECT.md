@@ -45,6 +45,10 @@
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
 
+### Phase 32: Content Volume (Ongoing)
+- **Goal:** Most data tables (enemies, recipes, abilities, loot) are stubs. Expand them continually.
+- **Key System:** Continuous expansion of `data/` TOML files (loot tables, more recipes, unique NPCs).
+
 ---
 
 ## What Exists Right Now

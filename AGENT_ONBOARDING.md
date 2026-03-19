@@ -78,3 +78,12 @@ Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
 - Implement Game-Over / Restart Flow
 - Allow player death to be recoverable
 - Exit criteria: `GameState` enum terminal values created and integrated
+
+**Upcoming Phases (Active Horizon):**
+- **Phase 26:** AI Multi-Tile Pathfinding (`tcod.path.AStar` integration)
+- **Phase 27:** Player Progression (XP, levels, attribute growth)
+- **Phase 28:** Status Effect HUD (Visual surfacing of modifiers)
+- **Phase 29:** Quest System (`QuestRegistry` tied to Chronicle)
+- **Phase 30:** Character Creation (Archetypes and stat allocation)
+- **Phase 31:** Dialogue World-State Flags (Global narrative triggers)
+- **Phase 32:** Content Volume (Ongoing expansion of TOML definitions)
