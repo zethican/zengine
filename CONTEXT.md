@@ -1,6 +1,6 @@
 # CONTEXT.md — ZEngine Handoff
 
-**Packaged:** February 27, 2026 | **Phase:** 19 (complete) | **Next:** Phase 20 (TBD)
+**Packaged:** February 28, 2026 | **Phase:** 24 (complete) | **Next:** Phase 25 (Game-Over Flow)
 
 ---
 
@@ -10,8 +10,8 @@
 - **Author:** Zachery (solo indie)
 - **Stack:** Python 3.14.3 | python-tcod-ecs | tcod renderer | Pydantic v2 | TOML | JSONL Chronicle
 - **Active environment:** Agentic CLI, local filesystem
-- **Design status:** v0.35 (Tag-Based Functional Overhaul complete)
-- **Canonical design reference:** `ZEngine_Manifest_v0_2.pdf` (§1–§19)
+- **Design status:** v0.45 (Narrative UI & Exploration complete)
+- **Canonical design reference:** `ZEngine_Manifest_v0_2.pdf` (§1–§24)
 
 ---
 
@@ -21,21 +21,36 @@
 
 | File                       | Status                                                      |
 | -------------------------- | ----------------------------------------------------------- |
-| `engine/loop.py`           | Functional Effect Pipeline — Phase 19 updated               |
+| `engine/narrative.py`      | Chronicle UI & Narrative Generator — Phase 24 updated       |
+| `ui/screens.py`            | Node-Based Dialogue & Chronicle UI — Phase 24 updated       |
+| `world/exploration.py`     | Fog of War & Persistent Memory — Phase 23 updated           |
+| `engine/loop.py`           | JIT Materialization — Phase 21 updated                      |
+| `world/territory.py`       | A Priori Topological Graphing — Phase 20 updated            |
+| `world/factions.py`        | Faction System & Relationships — Phase 20 updated           |
 | `engine/ecs/systems.py`    | Formula engine & Target resolution — Phase 19 updated       |
 | `engine/data_loader.py`    | EffectDef & AbilityDef functional schemas — Phase 19 updated|
 | `data/abilities/`          | Migrated functional ability definitions — Phase 19 updated  |
 | `engine/item_factory.py`   | Rarity rolls & Affix composition — Phase 18 updated         |
-| `data/items/affixes/`      | Prefix/Suffix definitions — Phase 18 updated               |
-| `ui/screens.py`            | Trade & Dialogue UI windows — Phase 14 updated              |
-| `CONTEXT.md`               | Single source of truth — Phase 19 updated                   |
-| `STATE_OF_THE_PROJECT.md`  | Project status and activity log — Phase 19 updated          |
+| `CONTEXT.md`               | Single source of truth — Phase 24 updated                   |
+| `STATE_OF_THE_PROJECT.md`  | Project status and activity log — Phase 24 updated          |
 
 ---
 
-## Decisions & Rationale (Phase 19 Foundation Refactor)
+## Decisions & Rationale (Phases 19-24)
 
-### Functional Effect Pipeline
+### Node-Based Dialogue (Phase 24)
+- **Decision:** Conversation graphs with conditions, actions, and placeholders using `NarrativeGenerator`.
+- **Rationale:** Moves dialogue complexity from Python logic into configuration, preparing for broader content authoring.
+
+### Exploration Memory & Fog of War (Phase 23)
+- **Decision:** Added `ExplorationManager` and optimized FOV rendering centered on the player.
+- **Rationale:** Ensures world state persists across sessions and chunks, enhancing tactical depth.
+
+### JIT Materialization (Phase 21)
+- **Decision:** Entities exist as Chronicle records outside FOV and are only instantiated in ECS upon observation.
+- **Rationale:** Enables an infinite world by aggressively culling the active ECS registry size and dynamically deserializing entities.
+
+### Functional Effect Pipeline (Phase 19)
 - **Decision:** Abilities are now collections of atomic `Effect` objects rather than hardcoded `if/else` branches.
 - **Rationale:** Hardens the foundation for complex interactions (AOE, multi-phase spells, life-steal) and ensures that future content expansion requires zero new Python code.
 
