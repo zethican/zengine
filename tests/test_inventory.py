@@ -5,10 +5,17 @@ from engine.item_factory import create_item
 from engine.ecs.components import ItemIdentity
 
 def test_create_item_entity():
+    import random
     registry = tcod.ecs.Registry()
+
+    # Enforce predictable base outcomes by seeding random generator
+    # as noted in memory: "When testing item generation that involves random procedural affixes... use random.seed(42)"
+    random.seed(42)
     item_entity = create_item(registry, "weapons/iron_sword")
+    random.seed() # reset
     
     assert ItemIdentity in item_entity.components
+    # With seed 42, it generates base "Iron Sword" (no affixes)
     assert item_entity.components[ItemIdentity].name == "Iron Sword"
     assert item_entity.components[ItemIdentity].entity_id == "iron_sword"
 
