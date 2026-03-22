@@ -262,7 +262,9 @@ Always check `DESIGN_VARIABLES.md` for the full list before introducing any nume
 | 29: Quest System  | Queued | Persistent mechanical consequences |
 | 30: Char Creation | Queued | Player agency before generation |
 | 31: World-State   | Queued | Persistent world alteration via conversation |
-| Post-31 deferred  | `FUTURE.md` | High-cost architectural systems (Destructible Terrain, Economy) |
+| 32: Effect Resolver | Queued | Ability implementation and formula firing |
+| 33: Content Volume| Queued | Continuous expansion of TOML definitions |
+| Post-33 deferred  | `FUTURE.md` | High-cost architectural systems (Destructible Terrain, Economy) |
 
 ---
 

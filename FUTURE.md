@@ -28,17 +28,21 @@ The following priorities must be addressed in sequence to unblock architectural 
 - **Gap:** Exploration and dialogue have no mechanical consequence.
 - **Implementation:** An ECS singleton `QuestRegistry` hooked to Chronicle `bus.emit()` events.
 
-### 6. Content Volume (Ongoing)
-- **Gap:** Most data tables (enemies, recipes, abilities, loot) are stubs.
-- **Implementation:** Continuous expansion of `data/` TOML files (loot tables, more recipes, unique NPCs).
-
-### 7. Character Creation Screen
+### 6. Character Creation Screen
 - **Gap:** Player has no authoring agency at game start.
 - **Implementation:** Requires Progression System. New `CharacterCreationState`.
 
-### 8. Dialogue World-State Flags
+### 7. Dialogue World-State Flags
 - **Gap:** Dialogue choices can't affect the world in ways other systems observe.
 - **Implementation:** Requires Quest System. Add a `WorldState` flag store.
+
+### 8. Ability Effect Resolver (Core Combat)
+- **Gap:** Abilities exist and can be triggered but silently no-op.
+- **Implementation:** Wire `action_resolution_system` to ability `effects[]`, `evaluate_formula` and `resolve_effect_targets`.
+
+### 9. Content Volume (Ongoing)
+- **Gap:** Most data tables (enemies, recipes, abilities, loot) are stubs.
+- **Implementation:** Continuous expansion of `data/` TOML files (loot tables, more recipes, unique NPCs).
 
 ---
 

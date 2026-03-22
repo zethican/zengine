@@ -45,6 +45,14 @@
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
 
+### Phase 32: Ability Effect Resolver (Core Combat)
+- **Goal:** Wire `action_resolution_system` to ability `effects[]`, allowing effects to fire correctly using existing formula evaluate logic.
+- **Key System:** Update `action_resolution_system`, add `ResourceComponent` (mana), and an action economy cooldown field.
+
+### Phase 33: Content Volume (Universal)
+- **Goal:** Expand TOML definitions for more enemies, items, crafting recipes, and loot tables.
+- **Key System:** Purely an authoring phase focusing on new entities and data configuration.
+
 ---
 
 ## What Exists Right Now
@@ -73,6 +81,11 @@
 ---
 
 ## Recent Activity
+
+### Session: 2026-03-21 (Roadmap Update)
+
+**Completed:**
+- Updated project documentation (gap analysis synchronization) and moved unblocked features from the `FUTURE.md` list to the active implementation roadmap in `STATE_OF_THE_PROJECT.md`.
 
 ### Session: 2026-02-28 (Phases 23-24: Narrative & Exploration)
 

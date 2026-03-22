@@ -55,3 +55,5 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 * **Phase 29: Quest / Objective System** — Persistent mechanical consequences for dialogue and exploration.
 * **Phase 30: Character Creation Screen** — Player agency before world generation.
 * **Phase 31: Dialogue World-State Flags** — Persistent world alteration via conversation.
+* **Phase 32: Ability Effect Resolver** — Core combat mechanic integration.
+* **Phase 33: Content Volume** — Expanded data sets for recipes, logic, loot, and unique entities.
