@@ -40,6 +40,10 @@ The following priorities must be addressed in sequence to unblock architectural 
 - **Gap:** Dialogue choices can't affect the world in ways other systems observe.
 - **Implementation:** Requires Quest System. Add a `WorldState` flag store.
 
+### 9. Wilderness / Biome Depth (Phase 32)
+- **Gap:** Biome seams, hazard zones, and specific spawn logic aren't fully resolved dynamically.
+- **Implementation:** Leverage the unblocked `data/biomes.toml` and `world/wilderness.py` components to build robust procedural open-world events.
+
 ---
 
 ## Deferred Advanced Systems (High Architectural Cost)
@@ -53,10 +57,6 @@ These systems are recognized gaps but must not interrupt the execution of the Ac
 ### Crafting Depth & Economy
 - **Vision:** Supply/demand driven item pricing and equipment durability loops.
 - **Status:** Deferred until Content Volume supports a robust economy.
-
-### Wilderness / Biome Depth
-- **Vision:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
-- **Status:** Deferred (Cosmetic until late stage).
 
 ### Destructible / Dynamic Terrain
 - **Vision:** Tile state mutations (barricades, destruction) that rebuild pathfinding cost maps.
