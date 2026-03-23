@@ -8,9 +8,9 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
+| **Current Phase**       | 25 (Game-Over Flow)     | Terminal states and player death recovery                    |
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
+| **Next Immediate Task** | Phase 26: Pathfinding   | `tcod.path.AStar` integration in `ai_system.py`              |
 | **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
 ---
@@ -44,6 +44,10 @@
 ### Phase 31: Dialogue World-State Flags
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
+
+### Phase 32: Wilderness / Biome Depth
+- **Goal:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
+- **Key System:** Currently unblocked by `data/biomes.toml` and `world/wilderness.py` (Encounter Density Driver).
 
 ---
 
