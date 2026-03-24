@@ -69,7 +69,7 @@ Before ending this session:
 
 ## Phase Status (as of v0.45)
 
-**Current phase: 24 (Narrative UI)**
+**Current phase: 24 (Narrative UI) - COMPLETE**
 Exit criteria: Node-based dialogue and Chronicle UI tested and complete.
 
 Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
