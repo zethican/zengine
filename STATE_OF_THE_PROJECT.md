@@ -11,7 +11,7 @@
 | **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
 | **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
-| **Active Agent**        | Ready                   | All 148 project tests passing                                |
+| **Active Agent**        | Ready                   | All 149 project tests passing                                |
 
 ---
 
@@ -80,7 +80,7 @@
 - Implemented **Fog of War**: Persistent exploration memory and optimized FOV rendering (centered on player).
 - Implemented **Node-Based Dialogue**: Branching conversation graphs with conditions, actions, and placeholders.
 - Implemented **Chronicle UI**: A human-readable history screen that filters the low-level event stream into meaningful prose.
-- Stabilized test suite: All 148 project tests passing.
+- Stabilized test suite: All 149 project tests passing.
 
 ---
 
