@@ -4,44 +4,6 @@ This document serves as the strategic roadmap for ZEngine. It has been reorganiz
 
 ---
 
-## Active Roadmap: Gap Analysis Implementation Sequence
-
-The following priorities must be addressed in sequence to unblock architectural dependencies and bridge the core feature gaps.
-
-### 1. Game-Over / Restart Flow (Blocking: Playtestability)
-- **Gap:** Player death (`vitals.is_dead = True`) halts gameplay with no recovery.
-- **Implementation:** Add terminal `GameState` enum values (`GameOverState`). Wire death check into a state-machine transition via `EventBus` subscriber (`EVT_ON_DEATH`).
-
-### 2. AI Multi-Tile Pathfinding (Blocking: Navigation)
-- **Gap:** AI relies on 1-tile greedy lookahead of influence maps and gets stuck on obstacles.
-- **Implementation:** Implement `AStar` path caching using `tcod.path`. Compute 8-15 tile paths on target acquisition and pop waypoints for movement.
-
-### 3. Player Progression (Blocking: Core RPG Arc)
-- **Gap:** No XP, levels, or skill growth. Attributes are static after template load.
-- **Implementation:** Add `XPComponent`, `LevelComponent`, and a `LevelingSystem` hooked to Chronicle kill events.
-
-### 4. Status Effect HUD (Blocking: Gameplay Feel)
-- **Gap:** Modifiers fire invisibly; no persistent survival conditions.
-- **Implementation:** Add `ConditionComponent` (list of named conditions with tick durations) and a HUD widget in `ui/renderer.py`.
-
-### 5. Quest / Objective System (Blocking: RPG Layer)
-- **Gap:** Exploration and dialogue have no mechanical consequence.
-- **Implementation:** An ECS singleton `QuestRegistry` hooked to Chronicle `bus.emit()` events.
-
-### 6. Content Volume (Ongoing)
-- **Gap:** Most data tables (enemies, recipes, abilities, loot) are stubs.
-- **Implementation:** Continuous expansion of `data/` TOML files (loot tables, more recipes, unique NPCs).
-
-### 7. Character Creation Screen
-- **Gap:** Player has no authoring agency at game start.
-- **Implementation:** Requires Progression System. New `CharacterCreationState`.
-
-### 8. Dialogue World-State Flags
-- **Gap:** Dialogue choices can't affect the world in ways other systems observe.
-- **Implementation:** Requires Quest System. Add a `WorldState` flag store.
-
----
-
 ## Deferred Advanced Systems (High Architectural Cost)
 
 These systems are recognized gaps but must not interrupt the execution of the Active Roadmap.
