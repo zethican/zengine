@@ -45,6 +45,10 @@
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
 
+
+### Phase 32: Wilderness / Biome Depth
+- **Goal:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
+- **Key System:** Expand `world/wilderness.py` and `data/biomes.toml`.
 ---
 
 ## What Exists Right Now

@@ -55,3 +55,4 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 * **Phase 29: Quest / Objective System** — Persistent mechanical consequences for dialogue and exploration.
 * **Phase 30: Character Creation Screen** — Player agency before world generation.
 * **Phase 31: Dialogue World-State Flags** — Persistent world alteration via conversation.
+* **Phase 32: Wilderness / Biome Depth** — Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
