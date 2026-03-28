@@ -104,6 +104,10 @@ ZEngine follows a strict ECS pattern:
 
 ---
 
+## Roadmap
+
+The active roadmap spans up to **Phase 32 (Wilderness / Biome Depth)**. See `FUTURE.md` and `STATE_OF_THE_PROJECT.md` for the exact sequence.
+
 ## Authority Reference
 
 For API signatures, ECS patterns, and procedural generation theory, the **NotebookLM "ZRogue Engine Development" (ID: ff5118f9-d833-4347-93f4-6860497587a5)** is the absolute authority. Always query it before implementing new systems.

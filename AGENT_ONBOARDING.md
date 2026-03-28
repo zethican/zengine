@@ -74,6 +74,8 @@ Exit criteria: Node-based dialogue and Chronicle UI tested and complete.
 
 Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
 
+**Note:** The active roadmap currently extends to Phase 32 (Wilderness / Biome Depth).
+
 **Phase 25 (next):**
 - Implement Game-Over / Restart Flow
 - Allow player death to be recoverable
