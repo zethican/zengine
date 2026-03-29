@@ -1,6 +1,6 @@
 # STATE_OF_THE_PROJECT.md
 
-**Last Updated:** 2026-02-28 (Manual Checkpoint v0.45 - Exploration & Narrative Complete)
+**Last Updated:** 2026-03-01 (Manual Checkpoint v0.46 - Narrative UI Complete, Entering Game-Over Flow)
 
 ---
 
@@ -8,8 +8,7 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
-| **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
+| **Current Phase**       | 25 (Game-Over Flow)     | ⏳ PENDING                                                    |
 | **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
 | **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
@@ -37,11 +36,15 @@
 - **Goal:** Ensure exploration and dialogue have persistent mechanical consequences.
 - **Key System:** An ECS singleton `QuestRegistry` hooked to Chronicle `bus.emit()` events.
 
-### Phase 30: Character Creation Screen
+### Phase 30: Content Volume (Ongoing)
+- **Goal:** Most data tables (enemies, recipes, abilities, loot) are currently stubs. We need more variety.
+- **Key System:** Continuous expansion of `data/` TOML files (loot tables, more recipes, unique NPCs).
+
+### Phase 31: Character Creation Screen
 - **Goal:** Allow player agency before world generation (archetype selection, stat allocation).
 - **Key System:** Requires Progression System. New `CharacterCreationState`.
 
-### Phase 31: Dialogue World-State Flags
+### Phase 32: Dialogue World-State Flags
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
 
@@ -74,8 +77,11 @@
 
 ## Recent Activity
 
-### Session: 2026-02-28 (Phases 23-24: Narrative & Exploration)
+### Session: 2026-03-01 (Documentation Update)
+- Reviewed completion of Phase 24.
+- Synced roadmap across all Agent files, README, and migrated unblocked roadmap items from FUTURE.md.
 
+### Session: 2026-02-28 (Phases 23-24: Narrative & Exploration)
 **Completed:**
 - Implemented **Fog of War**: Persistent exploration memory and optimized FOV rendering (centered on player).
 - Implemented **Node-Based Dialogue**: Branching conversation graphs with conditions, actions, and placeholders.
