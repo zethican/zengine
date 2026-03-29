@@ -255,14 +255,16 @@ Always check `DESIGN_VARIABLES.md` for the full list before introducing any nume
 | Phase | Status | Goal |
 |-------|--------|------|
 | 24: Narrative UI | ✅ COMPLETE | Node-based dialogue, Chronicle UI, Fog of War |
-| 25: Game-Over Flow| **NEXT** | Terminal game states for player death |
-| 26: Pathfinding   | Queued | `tcod.path.AStar` integration in `ai_system.py` |
+| 25: Game-Over Flow| **CURRENT** | Terminal game states for player death |
+
+| 26: Pathfinding   | **NEXT** | `tcod.path.AStar` integration in `ai_system.py` |
 | 27: Progression   | Queued | XP, levels, and attribute growth |
 | 28: Status HUD    | Queued | Visual surface for active modifiers |
 | 29: Quest System  | Queued | Persistent mechanical consequences |
 | 30: Char Creation | Queued | Player agency before generation |
 | 31: World-State   | Queued | Persistent world alteration via conversation |
-| Post-31 deferred  | `FUTURE.md` | High-cost architectural systems (Destructible Terrain, Economy) |
+| 32: Content Vol   | Queued | Ongoing expansion of items, entities, chunks |
+| Post-32 deferred  | `FUTURE.md` | High-cost architectural systems (Destructible Terrain, Economy) |
 
 ---
 

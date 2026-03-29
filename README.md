@@ -22,7 +22,7 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 
 ## Version History
 
-* **v0.45 (Phase 24) - 2026-02-28**
+* **v0.46 (Phase 24) - 2026-03-01**
   * **Narrative UI Complete:** Implemented Node-Based Dialogue graphs (conditions, actions, placeholders).
   * **Chronicle UI:** Added a human-readable history screen that translates raw event streams into meaningful prose via `NarrativeGenerator`.
 
@@ -53,5 +53,6 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 * **Phase 27: Player Progression** — XP, levels, and attribute growth.
 * **Phase 28: Status Effect HUD** — Visual surfaces for active modifiers and conditions.
 * **Phase 29: Quest / Objective System** — Persistent mechanical consequences for dialogue and exploration.
-* **Phase 30: Character Creation Screen** — Player agency before world generation.
-* **Phase 31: Dialogue World-State Flags** — Persistent world alteration via conversation.
+* **Phase 30: Content Volume** — Ongoing expansion of recipes, enemies, items, and dialogue.
+* **Phase 31: Character Creation Screen** — Player agency before world generation.
+* **Phase 32: Dialogue World-State Flags** — Persistent world alteration via conversation.
