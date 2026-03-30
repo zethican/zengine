@@ -89,7 +89,7 @@ RARITY_RARE_CHANCE          0.05        # 5% chance for 2 affixes
 4. No hardcoded ability behavior — TOML data only
 5. No NumPy outside spatial layer, lighting, and AI Influence Maps
 6. Undocumented design variables go in `DESIGN_VARIABLES.md` — never silent defaults
-7. Post-MVP systems: note in `FUTURE.md`, implement simpler MVP version
+7. Post-MVP systems: note in `STATE_OF_THE_PROJECT.md` (if unblocked) and `FUTURE.md`, implement simpler MVP version
 8. Never mutate `Combatant.hp` directly — always `Combatant.apply_damage()`
 9. Never use raw strings as event keys — use `EVT_*` constants from `engine/combat.py`
 10. Never instantiate a global `EventBus` — pass the instance at construction

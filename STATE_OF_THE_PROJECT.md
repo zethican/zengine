@@ -45,6 +45,26 @@
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
 
+### Phase 32: NPC Off-Screen Simulation
+- **Goal:** Run factions and NPCs outside of the player's immediate engagement range.
+- **Key System:** `WorldSimSystem` (off-screen tick on session load/save).
+
+### Phase 33: Crafting Depth & Economy
+- **Goal:** Supply/demand driven item pricing and equipment durability loops.
+- **Key System:** `DurabilityComponent` and expanded data/recipes/.
+
+### Phase 34: Wilderness / Biome Depth
+- **Goal:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
+- **Key System:** `WeatherSystem` with per-tile movement modifiers.
+
+### Phase 35: Destructible / Dynamic Terrain
+- **Goal:** Tile state mutations (barricades, destruction) that rebuild pathfinding cost maps.
+- **Key System:** `TileStateMutator` that invalidates cached cost/transparent arrays.
+
+### Phase 36: Tooltips / UX Polish
+- **Goal:** Minimap, hover tooltips for item descriptions, and raw dice roll surfacing.
+- **Key System:** Tooltip render pass in `ui/renderer.py`.
+
 ---
 
 ## What Exists Right Now

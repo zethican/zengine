@@ -186,7 +186,7 @@ Memorize these. Violating any of them breaks architectural integrity.
 4. **No hardcoded ability behavior** — TOML data and tag subscriptions only; no `if ability == "fireball"` in Python
 5. **NumPy restricted** — only in the Spatial Layer (world gen, lighting, AI Influence Maps)
 6. **No silent defaults** — every configurable parameter must be in `DESIGN_VARIABLES.md`
-7. **Post-MVP systems** — note in `FUTURE.md`; implement the simpler MVP version only
+7. **Post-MVP systems** — note in `STATE_OF_THE_PROJECT.md` and `FUTURE.md`; implement the simpler MVP version only
 8. **HP via `apply_damage()` only** — never mutate `Combatant.hp` directly
 9. **Event keys via `EVT_*` only** — never use raw strings as event keys
 10. **EventBus injected, never global** — always pass the instance at construction time
@@ -262,7 +262,11 @@ Always check `DESIGN_VARIABLES.md` for the full list before introducing any nume
 | 29: Quest System  | Queued | Persistent mechanical consequences |
 | 30: Char Creation | Queued | Player agency before generation |
 | 31: World-State   | Queued | Persistent world alteration via conversation |
-| Post-31 deferred  | `FUTURE.md` | High-cost architectural systems (Destructible Terrain, Economy) |
+| 32: NPC Off-Screen| Queued | Run factions/NPCs outside immediate engagement range |
+| 33: Craft/Economy | Queued | Supply/demand pricing and equipment durability |
+| 34: Biome Depth   | Queued | Per-biome spawn tables, dynamic weather hazards |
+| 35: Destructible  | Queued | Tile state mutations rebuilding pathfinding |
+| 36: Tooltips/UX   | Queued | Minimap, hover tooltips, raw dice roll surfacing |
 
 ---
 
