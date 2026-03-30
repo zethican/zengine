@@ -84,7 +84,7 @@ ZEngine follows a strict ECS pattern:
 - **Opening Session:** Read `CONTEXT.md`, `engine/combat.py`, and `DESIGN_VARIABLES.md`.
 - **Phase Control:** Respect the locks in `DO_NOT_TOUCH.md`. Do not modify Phase 1 contracts (`COMPONENTS.md`, `EVENTS.md`, `SYSTEMS.md`).
 - **Planning:** Save implementation plans to `plans/tmp/` to ensure they are accessible during active sessions.
-- **Closing Session:** Update `DESIGN_VARIABLES.md`, `FUTURE.md`, and `CONTEXT.md` as needed.
+- **Closing Session:** Update `DESIGN_VARIABLES.md`, `FUTURE.md` (or `STATE_OF_THE_PROJECT.md` if unblocked), and `CONTEXT.md` as needed.
 
 ---
 

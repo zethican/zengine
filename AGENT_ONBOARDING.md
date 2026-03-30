@@ -47,7 +47,7 @@ Do not write any code until I describe a task.
 5. No NumPy outside spatial layer and lighting.
 6. Grammar tables are never agent-generated — read only.
 7. Undocumented design variables go in `DESIGN_VARIABLES.md` — never silent defaults.
-8. Post-MVP systems: note in `FUTURE.md`, implement the simpler MVP version.
+8. Post-MVP systems: note in `STATE_OF_THE_PROJECT.md` and `FUTURE.md`, implement the simpler MVP version.
 9. Never mutate `Combatant.hp` directly — always `Combatant.apply_damage()`.
 10. Never use raw strings as event keys — use `EVT_*` constants from `engine/combat.py`.
 11. Never instantiate a global `EventBus` — pass the instance at construction.
@@ -59,7 +59,7 @@ Do not write any code until I describe a task.
 ```
 Before ending this session:
   1. Note any new design variables encountered in DESIGN_VARIABLES.md.
-  2. Note any post-MVP considerations in FUTURE.md.
+  2. Note any post-MVP considerations in FUTURE.md (or STATE_OF_THE_PROJECT.md if unblocked).
   3. Confirm the current phase gate status has not changed,
      or describe what changed and why.
   4. Update CONTEXT.md if any decisions were made or closed doors added.
