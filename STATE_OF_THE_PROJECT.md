@@ -1,6 +1,6 @@
 # STATE_OF_THE_PROJECT.md
 
-**Last Updated:** 2026-02-28 (Manual Checkpoint v0.45 - Exploration & Narrative Complete)
+**Last Updated:** 2026-03-21 (Phase 25 Start - Roadmap Sync)
 
 ---
 
@@ -8,9 +8,9 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
+| **Current Phase**       | 25 (Game-Over Flow)     | Terminal game states and player death recovery               |
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
+| **Next Immediate Task** | Phase 26: Pathfinding   | AI Multi-Tile Pathfinding                                    |
 | **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
 ---
@@ -44,6 +44,10 @@
 ### Phase 31: Dialogue World-State Flags
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
+
+### Phase 32: Wilderness / Biome Depth (Unblocked by Phase 23)
+- **Goal:** Implement per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
+- **Key System:** Extend `world/wilderness.py` and `world/generator.py` using NumPy.
 
 ---
 
