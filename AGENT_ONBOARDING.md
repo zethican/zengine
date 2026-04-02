@@ -69,12 +69,10 @@ Before ending this session:
 
 ## Phase Status (as of v0.45)
 
-**Current phase: 24 (Narrative UI)**
-Exit criteria: Node-based dialogue and Chronicle UI tested and complete.
+**Current phase: 25**
+Exit criteria: `GameOverState` and terminal state hooks merged into `EventBus` flow.
 
-Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
-
-**Phase 25 (next):**
-- Implement Game-Over / Restart Flow
-- Allow player death to be recoverable
-- Exit criteria: `GameState` enum terminal values created and integrated
+Open threads blocking Phase 25 completion:
+- Implement terminal `GameState` enum values
+- Wire death check into a state-machine transition
+- `EVT_ON_DEATH` hook implementation
