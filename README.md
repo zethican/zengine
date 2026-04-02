@@ -55,3 +55,8 @@ The engine uses `python-tcod-ecs` for entity component management and the `tcod`
 * **Phase 29: Quest / Objective System** — Persistent mechanical consequences for dialogue and exploration.
 * **Phase 30: Character Creation Screen** — Player agency before world generation.
 * **Phase 31: Dialogue World-State Flags** — Persistent world alteration via conversation.
+* **Phase 32: NPC Off-Screen Simulation** — Faction simulation beyond engagement range.
+* **Phase 33: Crafting Depth & Economy** — Supply/demand loops and durability.
+* **Phase 34: Wilderness / Biome Depth** — Procedural environments and weather.
+* **Phase 35: Destructible / Dynamic Terrain** — Reactive topological graphs.
+* **Phase 36: Tooltips / UX Polish** — Minimap and user experience finalization.

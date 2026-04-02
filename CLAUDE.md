@@ -12,8 +12,8 @@ This file is the canonical onboarding document for **Claude Code** working on ZE
 |--------|--------|
 | **Genre** | Social ecology simulator / party-based roguelike |
 | **Stack** | Python 3.11+ · python-tcod-ecs · tcod · Pydantic v2 · TOML · JSONL Chronicle |
-| **Current Phase** | 24 (Narrative UI) — ✅ COMPLETE (v0.45) |
-| **Next Phase** | 25: Game-Over / Restart Flow |
+| **Current Phase** | 25 (Game-Over Flow) |
+| **Next Phase** | 26: Pathfinding |
 | **Test Status** | 148 tests passing — `pytest tests/` |
 | **Entry Point** | `run.py` |
 

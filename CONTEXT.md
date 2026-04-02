@@ -1,6 +1,6 @@
 # CONTEXT.md — ZEngine Handoff
 
-**Packaged:** February 28, 2026 | **Phase:** 24 (complete) | **Next:** Phase 25 (Game-Over Flow)
+**Packaged:** February 28, 2026 | **Phase:** 25 (in progress) | **Next:** Phase 26 (Pathfinding)
 
 ---
 

@@ -8,9 +8,9 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
+| **Current Phase**       | 25 (Game-Over Flow)     | In Progress                                                  |
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
+| **Next Immediate Task** | Phase 26: Pathfinding   | `tcod.path.AStar` integration                                |
 | **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
 ---
@@ -44,6 +44,26 @@
 ### Phase 31: Dialogue World-State Flags
 - **Goal:** Persistently alter the world via conversation in ways other systems observe.
 - **Key System:** Requires Quest System. Add a `WorldState` flag store.
+
+### Phase 32: NPC Off-Screen Simulation
+- **Goal:** Run factions and NPCs outside of the player's immediate engagement range.
+- **Key System:** `WorldSimSystem` (off-screen tick on session load/save) unblocked by World-State flags.
+
+### Phase 33: Crafting Depth & Economy
+- **Goal:** Supply/demand driven item pricing and equipment durability loops.
+- **Key System:** `DurabilityComponent` and dynamic item value multipliers based on faction supply.
+
+### Phase 34: Wilderness / Biome Depth
+- **Goal:** Procedural generation of organic environments.
+- **Key System:** Per-biome spawn tables, noise-blended biome seams, and dynamic weather hazards.
+
+### Phase 35: Destructible / Dynamic Terrain
+- **Goal:** Reactive environments that update topological graphs.
+- **Key System:** Tile state mutations (barricades, destruction) that rebuild pathfinding cost maps.
+
+### Phase 36: Tooltips / UX Polish
+- **Goal:** Ensure smooth user experience and expose hidden variables.
+- **Key System:** Minimap rendering, hover tooltips for item descriptions, and raw dice roll surfacing.
 
 ---
 

@@ -67,13 +67,13 @@ Before ending this session:
 
 ---
 
-## Phase Status (as of v0.2)
+## Phase Status (as of v0.45)
 
-**Current phase: 0**
-Exit criteria: CONTEXT.md committed, opening/closing templates tested.
+**Current phase: 25**
+Exit criteria: `GameOverState` and terminal state hooks merged into `EventBus` flow.
 
-Open threads blocking Phase 1:
+Open threads blocking Phase 25 completion:
 
-- Social Layer catch-up tick count at session boundary
-- AP pool size
-- Movement allocation (speed-derived distance)
+- Implement terminal `GameState` enum values
+- Wire death check into a state-machine transition
+- `EVT_ON_DEATH` hook implementation
