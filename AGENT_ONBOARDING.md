@@ -75,6 +75,6 @@ Exit criteria: Node-based dialogue and Chronicle UI tested and complete.
 Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
 
 **Phase 25 (next):**
-- Implement Game-Over / Restart Flow
-- Allow player death to be recoverable
-- Exit criteria: `GameState` enum terminal values created and integrated
+- Game-Over / Restart Flow
+- Player death (`vitals.is_dead = True`) must be recoverable instead of hard halting
+- Exit criteria: `GameState` enum terminal values created (`GameOverState`) and wired via `EventBus` subscriber (`EVT_ON_DEATH`)
