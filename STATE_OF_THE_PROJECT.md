@@ -8,9 +8,9 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
+| **Current Phase**       | 25 (Game-Over Flow)     | Terminal states and player death recovery                    |
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
+| **Next Immediate Task** | Phase 26: Pathfinding   | AI Multi-Tile Pathfinding                                    |
 | **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
 ---
@@ -48,6 +48,10 @@
 ---
 
 ## What Exists Right Now
+
+### In Progress: Wilderness / Biome Depth
+- 🚧 `data/biomes.toml` — Biome data definitions.
+- 🚧 `world/wilderness.py` — Encounter density driver.
 
 ### Phase 24 Implementation (Narrative UI)
 - ✅ `engine/narrative.py` — `NarrativeGenerator` prose translation (v0.45).
