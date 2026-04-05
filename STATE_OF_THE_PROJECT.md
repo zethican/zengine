@@ -8,18 +8,18 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
-| **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
+| **Current Phase**       | 25 (Game-Over Flow)     | Active Development                                           |
+| **Phase 25 Status**     | ACTIVE                  | Terminal game states and player death recovery in progress   |
+| **Next Immediate Task** | Phase 26: Pathfinding   | Multi-tile AI navigation via AStar                           |
 | **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
 ---
 
 ## Holistic Roadmap (Active Horizon - Gap Analysis Priorities)
 
-### Phase 25: Game-Over / Restart Flow (Blocking: Playtestability)
+### Phase 25: Game-Over / Restart Flow (Active)
 - **Goal:** Implement terminal game states so player death is recoverable rather than a hard halt.
-- **Key System:** `GameState` enum transitions (`GameOverState`) and `EVT_ON_DEATH` event bus handlers.
+- **Key System:** Add terminal `GameState` enum values (`GameOverState`). Wire death check into a state-machine transition via `EventBus` subscriber (`EVT_ON_DEATH`).
 
 ### Phase 26: AI Multi-Tile Pathfinding (Blocking: Navigation)
 - **Goal:** Replace 1-tile greedy lookahead with AStar path caching so NPCs can navigate around obstacles.
