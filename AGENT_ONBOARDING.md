@@ -69,12 +69,12 @@ Before ending this session:
 
 ## Phase Status (as of v0.45)
 
-**Current phase: 24 (Narrative UI)**
+**Current phase: 25 (Game-Over Flow)**
 Exit criteria: Node-based dialogue and Chronicle UI tested and complete.
 
-Open threads blocking Phase 25: **NONE — Phase 25 is unblocked.**
+Open threads blocking Phase 26: **NONE — Phase 26 is unblocked.**
 
-**Phase 25 (next):**
-- Implement Game-Over / Restart Flow
-- Allow player death to be recoverable
-- Exit criteria: `GameState` enum terminal values created and integrated
+**Phase 26 (next):** AI Multi-Tile Pathfinding
+- Replace 1-tile greedy lookahead with AStar path caching
+- Allow NPCs to navigate around obstacles
+- Exit criteria: `tcod.path.AStar` integration in `ai_system.py`
