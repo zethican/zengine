@@ -8,16 +8,16 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
+| **Current Phase**       | 25 (Game-Over Flow)     | Terminal game states and player death recovery implementation|
 | **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
+| **Next Immediate Task** | Phase 26: Pathfinding   | `tcod.path.AStar` integration in `ai_system.py`              |
 | **Active Agent**        | Ready                   | All 148 project tests passing                                |
 
 ---
 
 ## Holistic Roadmap (Active Horizon - Gap Analysis Priorities)
 
-### Phase 25: Game-Over / Restart Flow (Blocking: Playtestability)
+### Phase 25: Game-Over / Restart Flow (Active) (Blocking: Playtestability)
 - **Goal:** Implement terminal game states so player death is recoverable rather than a hard halt.
 - **Key System:** `GameState` enum transitions (`GameOverState`) and `EVT_ON_DEATH` event bus handlers.
 
