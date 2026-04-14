@@ -8,18 +8,14 @@
 
 | Aspect                  | Status                  | Details                                                      |
 | ----------------------- | ----------------------- | ------------------------------------------------------------ |
-| **Current Phase**       | 24 (Narrative UI)       | ✅ Node-Based Dialogue & Chronicle UI implemented (v0.45)    |
-| **Phase 24 Status**     | ✅ COMPLETE              | Branching dialogue graphs; human-readable history screen     |
-| **Next Immediate Task** | Phase 25: Game-Over Flow| Terminal states and player death recovery                    |
-| **Active Agent**        | Ready                   | All 148 project tests passing                                |
+| **Current Phase**       | 25 (Game-Over Flow)     | 🚧 Terminal states and player death recovery                 |
+| **Phase 25 Status**     | 🚧 IN PROGRESS           | Implementing terminal `GameState` enum values                |
+| **Next Immediate Task** | Phase 26: Pathfinding   | `tcod.path.AStar` integration in `ai_system.py`              |
+| **Active Agent**        | Ready                   | All tests passing                                            |
 
 ---
 
 ## Holistic Roadmap (Active Horizon - Gap Analysis Priorities)
-
-### Phase 25: Game-Over / Restart Flow (Blocking: Playtestability)
-- **Goal:** Implement terminal game states so player death is recoverable rather than a hard halt.
-- **Key System:** `GameState` enum transitions (`GameOverState`) and `EVT_ON_DEATH` event bus handlers.
 
 ### Phase 26: AI Multi-Tile Pathfinding (Blocking: Navigation)
 - **Goal:** Replace 1-tile greedy lookahead with AStar path caching so NPCs can navigate around obstacles.
@@ -48,6 +44,9 @@
 ---
 
 ## What Exists Right Now
+
+### Phase 25 Implementation (Game-Over Flow)
+- 🚧 Active implementation of terminal game states (`GameOverState`) and recoverable player death.
 
 ### Phase 24 Implementation (Narrative UI)
 - ✅ `engine/narrative.py` — `NarrativeGenerator` prose translation (v0.45).
